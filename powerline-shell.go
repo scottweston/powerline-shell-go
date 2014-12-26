@@ -94,6 +94,7 @@ func getGitInformation() (string, bool) {
 }
 
 type Powerline struct {
+	ZshTemplate   string
 	BashTemplate  string
 	ColorTemplate string
 	Reset         string
@@ -105,22 +106,22 @@ type Powerline struct {
 	Segments      [][]string
 }
 
-func (p *Powerline) Segment(content string, fg string, bg string) string {
-	foreground := fmt.Sprintf(p.BashTemplate, fmt.Sprintf(p.ColorTemplate, "38", fg))
-	background := fmt.Sprintf(p.BashTemplate, fmt.Sprintf(p.ColorTemplate, "48", bg))
-	return fmt.Sprintf("%s%s %s", foreground, background, content)
-}
+// func (p *Powerline) Segment(content string, fg string, bg string) string {
+// 	foreground := fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, "38", fg))
+// 	background := fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, "48", bg))
+// 	return fmt.Sprintf("%s%s %s", foreground, background, content)
+// }
 
 func (p *Powerline) Color(prefix string, code string) string {
-	return fmt.Sprintf(p.BashTemplate, fmt.Sprintf(p.ColorTemplate, prefix, code))
+	return fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, prefix, code))
 }
 
 func (p *Powerline) ForegroundColor(code string) string {
-	return p.Color("38", code)
+	return p.Color("$FG", code)
 }
 
 func (p *Powerline) BackgroundColor(code string) string {
-	return p.Color("48", code)
+	return p.Color("$BG", code)
 }
 
 func (p *Powerline) PrintSegments() string {
@@ -147,9 +148,9 @@ func (p *Powerline) PrintSegments() string {
 func main() {
 	home := false
 	p := Powerline{
-		BashTemplate:  "\\[\\e%s\\]",
-		ColorTemplate: "[%s;5;%sm",
-		Reset:         "\\[\\e[0m\\]",
+		ZshTemplate:   "%s",
+		ColorTemplate: "%%{%s[%s]%%}",
+		Reset:         "$reset_color",
 		Lock:          "\uE0A2",
 		Network:       "\uE0A2",
 		Separator:     "\uE0B0",
@@ -159,11 +160,11 @@ func main() {
 	cwd, cwdParts := getCurrentWorkingDir()
 	_, _, virtualEnvName := getVirtualEnv()
 	if virtualEnvName != "" {
-		p.Segments = append(p.Segments, []string{"00", "35", virtualEnvName})
+		p.Segments = append(p.Segments, []string{"000", "035", virtualEnvName})
 	}
 	if cwdParts[0] == "~" {
 		cwdParts = cwdParts[1:len(cwdParts)]
-		p.Segments = append(p.Segments, []string{"15", "31", "~"})
+		p.Segments = append(p.Segments, []string{"015", "031", "~"})
 		home = true
 	}
 	if len(cwdParts) >= 4 {
@@ -191,13 +192,13 @@ func main() {
 	gitStatus, gitStaged := getGitInformation()
 	if gitStatus != "" {
 		if gitStaged {
-			p.Segments = append(p.Segments, []string{"15", "161", gitStatus})
+			p.Segments = append(p.Segments, []string{"015", "161", gitStatus})
 		} else {
-			p.Segments = append(p.Segments, []string{"0", "148", gitStatus})
+			p.Segments = append(p.Segments, []string{"000", "148", gitStatus})
 		}
 	}
 
-	p.Segments = append(p.Segments, []string{"15", "236", "\\$"})
+	p.Segments = append(p.Segments, []string{"015", "236", "\\$"})
 
 	fmt.Print(p.PrintSegments())
 }
