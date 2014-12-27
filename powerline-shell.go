@@ -106,12 +106,6 @@ type Powerline struct {
 	Segments      [][]string
 }
 
-// func (p *Powerline) Segment(content string, fg string, bg string) string {
-// 	foreground := fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, "38", fg))
-// 	background := fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, "48", bg))
-// 	return fmt.Sprintf("%s%s %s", foreground, background, content)
-// }
-
 func (p *Powerline) Color(prefix string, code string) string {
 	return fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, prefix, code))
 }
@@ -122,6 +116,12 @@ func (p *Powerline) ForegroundColor(code string) string {
 
 func (p *Powerline) BackgroundColor(code string) string {
 	return p.Color("$BG", code)
+}
+
+func (p *Powerline) AppendSegment(segment []string) {
+	if segment != nil {
+		p.Segments = append(p.Segments, segment)
+	}
 }
 
 func (p *Powerline) PrintSegments() string {
@@ -158,47 +158,71 @@ func main() {
 		Ellipsis:      "\u2026",
 	}
 	cwd, cwdParts := getCurrentWorkingDir()
-	_, _, virtualEnvName := getVirtualEnv()
-	if virtualEnvName != "" {
-		p.Segments = append(p.Segments, []string{"000", "035", virtualEnvName})
-	}
 	if cwdParts[0] == "~" {
 		cwdParts = cwdParts[1:len(cwdParts)]
-		p.Segments = append(p.Segments, []string{"015", "031", "~"})
 		home = true
 	}
+
+	if !home && len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
+		p.Segments = append(p.Segments, []string{"250", "237", "/", p.SeparatorThin, "244"})
+	} else if !home {
+		p.Segments = append(p.Segments, []string{"250", "237", "/"})
+	} else {
+		p.Segments = append(p.Segments, []string{"015", "031", "~"})
+	}
+
 	if len(cwdParts) >= 4 {
-		p.Segments = append(p.Segments, []string{"250", "237", cwdParts[0], p.SeparatorThin, "244"})
 		p.Segments = append(p.Segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
-		p.Segments = append(p.Segments, []string{"254", "237", cwdParts[len(cwdParts)-1]})
-	} else if len(cwdParts) >= 2 {
+	} else if len(cwdParts) > 2 {
 		if home {
-			p.Segments = append(p.Segments, []string{"250", "237", cwdParts[0], p.SeparatorThin, "244"})
+			p.Segments = append(p.Segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
 		} else {
 			p.Segments = append(p.Segments, []string{"250", "237", cwdParts[1], p.SeparatorThin, "244"})
 		}
-		if len(cwdParts) > 2 {
-			p.Segments = append(p.Segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
-		}
-		p.Segments = append(p.Segments, []string{"254", "237", cwdParts[len(cwdParts)-1]})
-	} else if len(cwdParts) != 0 {
-		p.Segments = append(p.Segments, []string{"254", "237", cwdParts[len(cwdParts)-1]})
 	}
 
+	if len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
+		p.Segments = append(p.Segments, []string{"250", "237", cwdParts[len(cwdParts)-1]})
+	}
+
+	p.AppendSegment(addVirtulEnvName())
+	p.AppendSegment(addLock(cwd, p))
+	p.AppendSegment(addGitInfo())
+	p.AppendSegment(addDollarPrompt())
+
+	fmt.Print(p.PrintSegments())
+}
+
+func addVirtulEnvName() []string {
+	_, _, virtualEnvName := getVirtualEnv()
+	if virtualEnvName != "" {
+		return []string{"000", "035", virtualEnvName}
+	}
+
+	return nil
+}
+
+func addLock(cwd string, p Powerline) []string {
 	if !isWritableDir(cwd) {
-		p.Segments = append(p.Segments, []string{"254", "124", p.Lock})
+		return []string{"254", "124", p.Lock}
 	}
 
+	return nil
+}
+
+func addGitInfo() []string {
 	gitStatus, gitStaged := getGitInformation()
 	if gitStatus != "" {
 		if gitStaged {
-			p.Segments = append(p.Segments, []string{"015", "161", gitStatus})
+			return []string{"015", "161", gitStatus}
 		} else {
-			p.Segments = append(p.Segments, []string{"000", "148", gitStatus})
+			return []string{"000", "148", gitStatus}
 		}
+	} else {
+		return nil
 	}
+}
 
-	p.Segments = append(p.Segments, []string{"015", "236", "\\$"})
-
-	fmt.Print(p.PrintSegments())
+func addDollarPrompt() []string {
+	return []string{"015", "236", "\\$"}
 }
