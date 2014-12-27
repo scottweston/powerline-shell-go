@@ -150,7 +150,7 @@ func main() {
 	p := Powerline{
 		ZshTemplate:   "%s",
 		ColorTemplate: "%%{%s[%s]%%}",
-		Reset:         "$reset_color",
+		Reset:         "%{$reset_color%}",
 		Lock:          "\uE0A2",
 		Network:       "\uE0A2",
 		Separator:     "\uE0B0",
