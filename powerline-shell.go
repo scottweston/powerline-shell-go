@@ -16,7 +16,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -25,6 +24,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/wm/powerline-shell-go/powerline"
 )
 
 func getCurrentWorkingDir() (string, []string) {
@@ -93,104 +94,37 @@ func getGitInformation() (string, bool) {
 	return status, staged
 }
 
-type Powerline struct {
-	ZshTemplate   string
-	BashTemplate  string
-	ColorTemplate string
-	Reset         string
-	Lock          string
-	Network       string
-	Separator     string
-	SeparatorThin string
-	Ellipsis      string
-	Segments      [][]string
-}
-
-func (p *Powerline) Color(prefix string, code string) string {
-	return fmt.Sprintf(p.ZshTemplate, fmt.Sprintf(p.ColorTemplate, prefix, code))
-}
-
-func (p *Powerline) ForegroundColor(code string) string {
-	return p.Color("$FG", code)
-}
-
-func (p *Powerline) BackgroundColor(code string) string {
-	return p.Color("$BG", code)
-}
-
-func (p *Powerline) AppendSegment(segment []string) {
-	if segment != nil {
-		p.Segments = append(p.Segments, segment)
-	}
-}
-
-func (p *Powerline) PrintSegments() string {
-	var nextBackground string
-	var buffer bytes.Buffer
-	for i, Segment := range p.Segments {
-		if (i + 1) == len(p.Segments) {
-			nextBackground = p.Reset
-		} else {
-			nextBackground = p.BackgroundColor(p.Segments[i+1][1])
-		}
-		if len(Segment) == 3 {
-			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0]), p.BackgroundColor(Segment[1]), Segment[2], nextBackground, p.ForegroundColor(Segment[1]), p.Separator))
-		} else {
-			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0]), p.BackgroundColor(Segment[1]), Segment[2], nextBackground, p.ForegroundColor(Segment[4]), Segment[3]))
-		}
-	}
-
-	buffer.WriteString(p.Reset)
-
-	return buffer.String()
-}
-
-func main() {
+func addCwd(cwd string, cwdParts []string, p powerline.Powerline) [][]string {
+	segments := [][]string{}
 	home := false
-	p := Powerline{
-		ZshTemplate:   "%s",
-		ColorTemplate: "%%{%s[%s]%%}",
-		Reset:         "%{$reset_color%}",
-		Lock:          "\uE0A2",
-		Network:       "\uE0A2",
-		Separator:     "\uE0B0",
-		SeparatorThin: "\uE0B1",
-		Ellipsis:      "\u2026",
-	}
-	cwd, cwdParts := getCurrentWorkingDir()
 	if cwdParts[0] == "~" {
 		cwdParts = cwdParts[1:len(cwdParts)]
 		home = true
 	}
 
 	if !home && len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
-		p.Segments = append(p.Segments, []string{"250", "237", "/", p.SeparatorThin, "244"})
+		segments = append(segments, []string{"250", "237", "/", p.SeparatorThin, "244"})
 	} else if !home {
-		p.Segments = append(p.Segments, []string{"250", "237", "/"})
+		segments = append(segments, []string{"250", "237", "/"})
 	} else {
-		p.Segments = append(p.Segments, []string{"015", "031", "~"})
+		segments = append(segments, []string{"015", "031", "~"})
 	}
 
 	if len(cwdParts) >= 4 {
-		p.Segments = append(p.Segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
+		segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
 	} else if len(cwdParts) > 2 {
 		if home {
-			p.Segments = append(p.Segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
+			segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
 		} else {
-			p.Segments = append(p.Segments, []string{"250", "237", cwdParts[1], p.SeparatorThin, "244"})
+			segments = append(segments, []string{"250", "237", cwdParts[1], p.SeparatorThin, "244"})
 		}
 	}
 
 	if len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
-		p.Segments = append(p.Segments, []string{"250", "237", cwdParts[len(cwdParts)-1]})
+		segments = append(segments, []string{"250", "237", cwdParts[len(cwdParts)-1]})
 	}
 
-	p.AppendSegment(addVirtulEnvName())
-	p.AppendSegment(addLock(cwd, p))
-	p.AppendSegment(addGitInfo())
-	p.AppendSegment(addDollarPrompt())
-
-	fmt.Print(p.PrintSegments())
+	return segments
 }
 
 func addVirtulEnvName() []string {
@@ -202,7 +136,7 @@ func addVirtulEnvName() []string {
 	return nil
 }
 
-func addLock(cwd string, p Powerline) []string {
+func addLock(cwd string, p powerline.Powerline) []string {
 	if !isWritableDir(cwd) {
 		return []string{"254", "124", p.Lock}
 	}
@@ -225,4 +159,23 @@ func addGitInfo() []string {
 
 func addDollarPrompt() []string {
 	return []string{"015", "236", "\\$"}
+}
+
+func main() {
+	shell := "zsh"
+
+	if len(os.Args) > 1 {
+		shell = os.Args[1]
+	}
+
+	p := powerline.NewPowerline(shell)
+	cwd, cwdParts := getCurrentWorkingDir()
+
+	p.AppendSegments(addCwd(cwd, cwdParts, p))
+	p.AppendSegment(addVirtulEnvName())
+	p.AppendSegment(addLock(cwd, p))
+	p.AppendSegment(addGitInfo())
+	p.AppendSegment(addDollarPrompt())
+
+	fmt.Print(p.PrintSegments())
 }

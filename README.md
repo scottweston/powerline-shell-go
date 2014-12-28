@@ -4,6 +4,15 @@ Attempted fork of [powerline-shell](https://github.com/milkbikis/powerline-shell
 
 This application does not cover all features of powerline-shell, only those that I currently use, and it is not configurable.
 
+## Usage
+
+Add the following to your .zshrc file
+
+    function powerline_precmd() {
+      PS1="$(powerline-shell-go 2> /dev/null)"
+    }
+    precmd_functions+=(powerline_precmd)
+
 ## Performance
 
 ```
