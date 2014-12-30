@@ -6,12 +6,39 @@ This application does not cover all features of powerline-shell, only those that
 
 ## Usage
 
-Add the following to your .zshrc file
+Install the binary with
+
+    go get github.com/sivel/powerline-shell-go
+    go install github.com/sivel/powerline-shell-go
+
+### Bash
+
+Install powerline-shell-go and add the following to your `~/.bashrc`
+
+    function _update_ps1() {
+       export PS1="$(powerline-shell-go bash $? 2> /dev/null)"
+    }
+
+    export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+
+### Zsh
+
+Install powerline-shell-go and add the following to your `~/.zshrc`
 
     function powerline_precmd() {
-      PS1="$(powerline-shell-go 2> /dev/null)"
+      export PS1="$(powerline-shell-go zsh $? 2> /dev/null)"
     }
-    precmd_functions+=(powerline_precmd)
+
+    function install_powerline_precmd() {
+      for s in "${precmd_functions[@]}"; do
+        if [ "$s" = "powerline_precmd" ]; then
+          return
+        fi
+      done
+      precmd_functions+=(powerline_precmd)
+    }
+
+    install_powerline_precmd
 
 ## Performance
 
