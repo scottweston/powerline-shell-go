@@ -20,10 +20,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/user"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 
 	"github.com/wm/powerline-shell-go/powerline"
 )
@@ -65,7 +67,7 @@ func getGitInformation() (string, bool) {
 	var status string
 	var staged bool
 	stdout, _ := exec.Command("git", "status", "--ignore-submodules").Output()
-	reBranch := regexp.MustCompile(`^(HEAD detached at|HEAD detached from|On branch) (\S+)`)
+	reBranch := regexp.MustCompile(`^(HEAD detached at|HEAD detached from|# On branch|On branch) (\S+)`)
 	matchBranch := reBranch.FindStringSubmatch(string(stdout))
 	if len(matchBranch) > 0 {
 		if matchBranch[2] == "detached" {
@@ -102,20 +104,24 @@ func addCwd(cwd string, cwdParts []string, p powerline.Powerline) [][]string {
 		home = true
 	}
 
-	if !home && len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
-		segments = append(segments, []string{"250", "237", "/", p.SeparatorThin, "244"})
-	} else if !home {
-		segments = append(segments, []string{"250", "237", "/"})
-	} else {
+	if home {
 		segments = append(segments, []string{"015", "031", "~"})
-	}
 
-	if len(cwdParts) >= 4 {
-		segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
-	} else if len(cwdParts) > 2 {
-		if home {
+		if len(cwdParts) > 2 {
 			segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
+		} else if len(cwdParts) == 2 {
+			segments = append(segments, []string{"250", "237", cwdParts[0], p.SeparatorThin, "244"})
+		}
+	} else {
+		if len(cwdParts[len(cwdParts)-1]) > 0 {
+			segments = append(segments, []string{"250", "237", "/", p.SeparatorThin, "244"})
 		} else {
+			segments = append(segments, []string{"250", "237", "/"})
+		}
+
+		if len(cwdParts) > 3 {
+			segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
+		} else if len(cwdParts) > 2 {
 			segments = append(segments, []string{"250", "237", cwdParts[1], p.SeparatorThin, "244"})
 		}
 	}
@@ -157,6 +163,24 @@ func addGitInfo() []string {
 	}
 }
 
+func addHostname(onlySsh bool) []string {
+	_, found := syscall.Getenv("SSH_CLIENT")
+
+	if found || !onlySsh {
+		user, err := user.Current()
+		if err != nil {
+			return nil
+		}
+		hostname, err := os.Hostname()
+		if err != nil {
+			return nil
+		}
+		return []string{"015", "161", user.Username + "@" + hostname}
+	}
+
+	return nil
+}
+
 func addDollarPrompt() []string {
 	return []string{"015", "236", "\\$"}
 }
@@ -171,6 +195,7 @@ func main() {
 	p := powerline.NewPowerline(shell)
 	cwd, cwdParts := getCurrentWorkingDir()
 
+	p.AppendSegment(addHostname(true))
 	p.AppendSegments(addCwd(cwd, cwdParts, p))
 	p.AppendSegment(addVirtulEnvName())
 	p.AppendSegment(addLock(cwd, p))

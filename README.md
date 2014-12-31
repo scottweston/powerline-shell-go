@@ -55,3 +55,10 @@ real    0m0.007s
 user    0m0.002s
 sys     0m0.004s
 ```
+
+## Building on Darwin and with Docker
+
+    ./build.sh
+
+
+It requires a running docker.
