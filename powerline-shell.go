@@ -41,17 +41,14 @@ func getCurrentWorkingDir() (string, []string) {
 	return dir, parts
 }
 
-func getVirtualEnv() (string, []string, string) {
-	var parts []string
+func getVirtualEnv() string {
 	virtualEnv := os.Getenv("VIRTUAL_ENV")
 	if virtualEnv == "" {
-		return "", parts, ""
+		return ""
 	}
 
-	parts = strings.Split(virtualEnv, "/")
-
 	virtualEnvName := path.Base(virtualEnv)
-	return virtualEnv, parts, virtualEnvName
+	return virtualEnvName
 }
 
 func isWritableDir(dir string) bool {
@@ -134,8 +131,7 @@ func addCwd(cwdParts []string, ellipsis string, separator string) [][]string {
 	return segments
 }
 
-func addVirtulEnvName() []string {
-	_, _, virtualEnvName := getVirtualEnv()
+func addVirtulEnvName(virtualEnvName string) []string {
 	if virtualEnvName != "" {
 		return []string{"000", "035", virtualEnvName}
 	}
@@ -151,35 +147,32 @@ func addLock(cwd string, lock string) []string {
 	return nil
 }
 
-func addGitInfo() []string {
-	gitStatus, gitStaged := getGitInformation()
-	if gitStatus != "" {
-		if gitStaged {
-			return []string{"015", "161", gitStatus}
+func addGitInfo(status string, staged bool) []string {
+	if status != "" {
+		if staged {
+			return []string{"015", "161", status}
 		} else {
-			return []string{"000", "148", gitStatus}
+			return []string{"000", "148", status}
 		}
 	} else {
 		return nil
 	}
 }
 
-func addHostname(onlySsh bool) []string {
-	_, found := syscall.Getenv("SSH_CLIENT")
+func addHostname(includeUsername bool) []string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return nil
+	}
 
-	if found || !onlySsh {
+	if includeUsername {
 		user, err := user.Current()
 		if err != nil {
 			return nil
 		}
-		hostname, err := os.Hostname()
-		if err != nil {
-			return nil
-		}
-		return []string{"015", "161", user.Username + "@" + hostname}
+		hostname = user.Username + "@" + hostname
 	}
-
-	return nil
+	return []string{"015", "161", hostname}
 }
 
 func addDollarPrompt() []string {
@@ -196,11 +189,13 @@ func main() {
 	p := powerline.NewPowerline(shell)
 	cwd, cwdParts := getCurrentWorkingDir()
 
-	p.AppendSegment(addHostname(true))
+	if _, found := syscall.Getenv("SSH_CLIENT"); found {
+		p.AppendSegment(addHostname(true))
+	}
 	p.AppendSegments(addCwd(cwdParts, p.Ellipsis, p.SeparatorThin))
-	p.AppendSegment(addVirtulEnvName())
+	p.AppendSegment(addVirtulEnvName(getVirtualEnv()))
 	p.AppendSegment(addLock(cwd, p.Lock))
-	p.AppendSegment(addGitInfo())
+	p.AppendSegment(addGitInfo(getGitInformation()))
 	p.AppendSegment(addDollarPrompt())
 
 	fmt.Print(p.PrintSegments())

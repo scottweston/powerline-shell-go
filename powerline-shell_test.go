@@ -1,10 +1,80 @@
 package main
 
 import (
+	"os"
+	"os/user"
 	"reflect"
 	"strings"
 	"testing"
 )
+
+func Test_addHostname_with_username(t *testing.T) {
+	hostname, _ := os.Hostname()
+	user, _ := user.Current()
+
+	rootSegment := addHostname(true)
+	want := []string{"015", "161", user.Username + "@" + hostname}
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
+
+func Test_addHostname_without_username(t *testing.T) {
+	hostname, _ := os.Hostname()
+
+	rootSegment := addHostname(false)
+	want := []string{"015", "161", hostname}
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
+
+func Test_addVirtualEnvName_empty(t *testing.T) {
+	var want []string
+	rootSegment := addVirtulEnvName("")
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
+
+func Test_addVirtualEnvName_present(t *testing.T) {
+	rootSegment := addVirtulEnvName("MyVirtEnv")
+	want := []string{"000", "035", "MyVirtEnv"}
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
+
+func Test_addGitInfo_no_status(t *testing.T) {
+	var want []string
+	rootSegment := addGitInfo("", false)
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
+
+func Test_addGitInfo_not_staged(t *testing.T) {
+	var want = []string{"000", "148", "master"}
+	rootSegment := addGitInfo("master", false)
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
+
+func Test_addGitInfo_staged(t *testing.T) {
+	var want = []string{"015", "161", "master"}
+	rootSegment := addGitInfo("master", true)
+
+	if !reflect.DeepEqual(rootSegment, want) {
+		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
+	}
+}
 
 func Test_addCwd_root(t *testing.T) {
 	segments := [][]string{}
