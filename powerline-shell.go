@@ -189,11 +189,11 @@ func main() {
 	p := powerline.NewPowerline(shell)
 	cwd, cwdParts := getCurrentWorkingDir()
 
+	p.AppendSegment(addVirtulEnvName(getVirtualEnv()))
 	if _, found := syscall.Getenv("SSH_CLIENT"); found {
 		p.AppendSegment(addHostname(true))
 	}
 	p.AppendSegments(addCwd(cwdParts, p.Ellipsis, p.SeparatorThin))
-	p.AppendSegment(addVirtulEnvName(getVirtualEnv()))
 	p.AppendSegment(addLock(cwd, p.Lock))
 	p.AppendSegment(addGitInfo(getGitInformation()))
 	p.AppendSegment(addDollarPrompt())
