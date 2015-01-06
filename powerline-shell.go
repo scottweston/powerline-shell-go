@@ -172,7 +172,7 @@ func addHostname(includeUsername bool) []string {
 		}
 		hostname = user.Username + "@" + hostname
 	}
-	return []string{"015", "161", hostname}
+	return []string{"000", "035", hostname}
 }
 
 func addDollarPrompt() []string {
