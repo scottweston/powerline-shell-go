@@ -36,6 +36,7 @@ func getCurrentWorkingDir() (string, []string) {
 		log.Fatal(err)
 	}
 	userDir := strings.Replace(dir, os.Getenv("HOME"), "~", 1)
+	userDir = strings.TrimSuffix(userDir, "/")
 	parts := strings.Split(userDir, "/")
 	return dir, parts
 }
@@ -96,7 +97,7 @@ func getGitInformation() (string, bool) {
 	return status, staged
 }
 
-func addCwd(cwd string, cwdParts []string, p powerline.Powerline) [][]string {
+func addCwd(cwdParts []string, ellipsis string, separator string) [][]string {
 	segments := [][]string{}
 	home := false
 	if cwdParts[0] == "~" {
@@ -108,21 +109,21 @@ func addCwd(cwd string, cwdParts []string, p powerline.Powerline) [][]string {
 		segments = append(segments, []string{"015", "031", "~"})
 
 		if len(cwdParts) > 2 {
-			segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
+			segments = append(segments, []string{"250", "237", cwdParts[0], separator, "244"})
+			segments = append(segments, []string{"250", "237", ellipsis, separator, "244"})
 		} else if len(cwdParts) == 2 {
-			segments = append(segments, []string{"250", "237", cwdParts[0], p.SeparatorThin, "244"})
+			segments = append(segments, []string{"250", "237", cwdParts[0], separator, "244"})
 		}
 	} else {
-		if len(cwdParts[len(cwdParts)-1]) > 0 {
-			segments = append(segments, []string{"250", "237", "/", p.SeparatorThin, "244"})
-		} else {
+		if len(cwdParts[len(cwdParts)-1]) == 0 {
 			segments = append(segments, []string{"250", "237", "/"})
 		}
 
 		if len(cwdParts) > 3 {
-			segments = append(segments, []string{"250", "237", p.Ellipsis, p.SeparatorThin, "244"})
+			segments = append(segments, []string{"250", "237", cwdParts[1], separator, "244"})
+			segments = append(segments, []string{"250", "237", ellipsis, separator, "244"})
 		} else if len(cwdParts) > 2 {
-			segments = append(segments, []string{"250", "237", cwdParts[1], p.SeparatorThin, "244"})
+			segments = append(segments, []string{"250", "237", cwdParts[1], separator, "244"})
 		}
 	}
 
@@ -142,9 +143,9 @@ func addVirtulEnvName() []string {
 	return nil
 }
 
-func addLock(cwd string, p powerline.Powerline) []string {
+func addLock(cwd string, lock string) []string {
 	if !isWritableDir(cwd) {
-		return []string{"254", "124", p.Lock}
+		return []string{"254", "124", lock}
 	}
 
 	return nil
@@ -196,9 +197,9 @@ func main() {
 	cwd, cwdParts := getCurrentWorkingDir()
 
 	p.AppendSegment(addHostname(true))
-	p.AppendSegments(addCwd(cwd, cwdParts, p))
+	p.AppendSegments(addCwd(cwdParts, p.Ellipsis, p.SeparatorThin))
 	p.AppendSegment(addVirtulEnvName())
-	p.AppendSegment(addLock(cwd, p))
+	p.AppendSegment(addLock(cwd, p.Lock))
 	p.AppendSegment(addGitInfo())
 	p.AppendSegment(addDollarPrompt())
 
