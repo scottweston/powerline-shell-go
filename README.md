@@ -60,5 +60,14 @@ sys     0m0.004s
 
     ./build.sh
 
-
 It requires a running docker.
+
+## Building on Linux
+
+This assumes you have a working `go` environment (see https://golang.org)
+
+```
+go get -d
+mkdir -p build
+go build -o build/powerline-shell-go
+```
