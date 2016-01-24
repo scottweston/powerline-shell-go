@@ -322,6 +322,18 @@ func addCwd(conf Configuration, cwdParts []string, ellipsis string, separator st
 		home = true
 	}
 
+	// limit part length, less than 3 makes no sense
+	if conf.CwdMaxLength > 3 {
+		for i, part := range cwdParts {
+			if len(part) > conf.CwdMaxLength {
+				sml := int(conf.CwdMaxLength/2 - 1)
+				if sml > 0 {
+					cwdParts[i] = part[0:sml] + ellipsis + part[len(part)-sml:]
+				}
+			}
+		}
+	}
+
 	if home {
 		segments = append(segments, []string{conf.Colours.Cwd.HomeText, conf.Colours.Cwd.HomeBackground, "~"})
 
@@ -406,6 +418,7 @@ type Configuration struct {
 	ShowWritable   bool `json:"showWritable"`
 	ShowVirtualEnv bool `json:"showVirtualEnv"`
 	ShowCwd        bool `json:"showCwd"`
+	CwdMaxLength   int  `json:"cwdMaxLength"`
 	ShowGit        bool `json:"showGit"`
 	ShowHg         bool `json:"showHg"`
 	ShowReturnCode bool `json:"showReturnCode"`
@@ -449,6 +462,7 @@ func (self *Configuration) SetDefaults() {
 	self.ShowWritable = true
 	self.ShowVirtualEnv = true
 	self.ShowCwd = true
+	self.CwdMaxLength = 0
 	self.ShowGit = true
 	self.ShowHg = true
 	self.ShowReturnCode = true
