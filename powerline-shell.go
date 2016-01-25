@@ -87,17 +87,56 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 		reClean := regexp.MustCompile(`(?m)^commit:.*clean`)
 		res_clean := reClean.FindStringSubmatch(string(hg))
 
+		rePublic := regexp.MustCompile(`(?m)^phases:.* (.*) public`)
+		res_public := rePublic.FindStringSubmatch(string(hg))
+		reDraft := regexp.MustCompile(`(?m)^phases:.* (.*) draft`)
+		res_draft := reDraft.FindStringSubmatch(string(hg))
+		reSecret := regexp.MustCompile(`(?m)^phases:.* (.*) secret`)
+		res_secret := reSecret.FindStringSubmatch(string(hg))
+
 		if len(res_clean) == 0 {
 			branch_colour = conf.Colours.Hg.BackgroundChanges
 		}
 
 		// branch name
 		if len(matchBranch) > 0 {
-			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, matchBranch[1], separator, text_colour})
+			if matchBranch[1] != "default" {
+				fmt_str = "\ue0a0 " + matchBranch[1]
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, matchBranch[1]})
+				fmt_str = matchBranch[1]
 			}
+			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 || len(res_public) > 0 || len(res_draft) > 0 || len(res_secret) > 0 {
+				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+			} else {
+				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+			}
+		}
+		// phases
+		if len(res_public) > 0 || len(res_draft) > 0 || len(res_secret) > 0 {
+			var public int = 0
+			var draft int = 0
+			var secret int = 0
+			if len(res_public) > 0 {
+				public, _ = strconv.Atoi(res_public[1])
+			}
+			if len(res_draft) > 0 {
+				draft, _ = strconv.Atoi(res_draft[1])
+			}
+			if len(res_secret) > 0 {
+				secret, _ = strconv.Atoi(res_secret[1])
+			}
+			total := public + draft + secret
+			if total == 1 {
+				fmt_str = "\u271a"
+			} else {
+				fmt_str = fmt.Sprintf("%d\u271a", total)
+			}
+			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 {
+				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+			} else {
+				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+			}
+
 		}
 		if len(res_added) > 0 {
 			if res_added[1] != "1" {
@@ -197,10 +236,14 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 		// branch name
 		if len(matchBranch) > 0 {
 			if strings.Contains(matchBranch[1], "detached") {
-				fmt_str = fmt.Sprintf("\u2704 %s", matchBranch[2])
+				fmt_str = "\u2704 "
 			} else {
-				fmt_str = fmt.Sprintf("\u2693 %s", matchBranch[2])
+				fmt_str = "\u2693 "
 			}
+			if matchBranch[2] != "master" {
+				fmt_str = fmt.Sprintf("%s\ue0a0 ", fmt_str)
+			}
+			fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
 
 			if len(matchStatus) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
 				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
