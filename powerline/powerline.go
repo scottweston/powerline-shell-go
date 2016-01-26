@@ -15,31 +15,33 @@ type Powerline struct {
 	Separator     string
 	SeparatorThin string
 	Ellipsis      string
-	Segments      [][]string
+	Dollar        string
+	Bold          string
+	Segments      [][]interface{}
 }
 
-func (p *Powerline) Color(prefix string, code string) string {
+func (p *Powerline) Color(fore int, back int) string {
 	return fmt.Sprintf(
 		p.ShTemplate,
-		fmt.Sprintf(p.ColorTemplate, prefix, code),
+		fmt.Sprintf(p.ColorTemplate, fore, back),
 	)
 }
 
-func (p *Powerline) ForegroundColor(code string) string {
-	return p.Color("38", code)
+func (p *Powerline) ForegroundColor(fore int) string {
+	return p.Color(38, fore)
 }
 
-func (p *Powerline) BackgroundColor(code string) string {
-	return p.Color("48", code)
+func (p *Powerline) BackgroundColor(back int) string {
+	return p.Color(48, back)
 }
 
-func (p *Powerline) AppendSegment(segment []string) {
+func (p *Powerline) AppendSegment(segment []interface{}) {
 	if segment != nil {
 		p.Segments = append(p.Segments, segment)
 	}
 }
 
-func (p *Powerline) AppendSegments(segments [][]string) {
+func (p *Powerline) AppendSegments(segments [][]interface{}) {
 	for _, segment := range segments {
 		p.AppendSegment(segment)
 	}
@@ -52,12 +54,12 @@ func (p *Powerline) PrintSegments() string {
 		if (i + 1) == len(p.Segments) {
 			nextBackground = p.Reset
 		} else {
-			nextBackground = p.BackgroundColor(p.Segments[i+1][1])
+			nextBackground = p.BackgroundColor(p.Segments[i+1][1].(int))
 		}
 		if len(Segment) == 3 {
-			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0]), p.BackgroundColor(Segment[1]), Segment[2], nextBackground, p.ForegroundColor(Segment[1]), p.Separator))
+			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0].(int)), p.BackgroundColor(Segment[1].(int)), Segment[2].(string), nextBackground, p.ForegroundColor(Segment[1].(int)), p.Separator))
 		} else {
-			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0]), p.BackgroundColor(Segment[1]), Segment[2], nextBackground, p.ForegroundColor(Segment[4]), Segment[3]))
+			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0].(int)), p.BackgroundColor(Segment[1].(int)), Segment[2], nextBackground, p.ForegroundColor(Segment[4].(int)), Segment[3]))
 		}
 	}
 
@@ -78,13 +80,19 @@ func NewPowerline(shell string) Powerline {
 	switch shell {
 	case "bash":
 		p.ShTemplate = "\\[\\e%s\\]"
-		p.ColorTemplate = "[%s;5;%sm"
+		p.ColorTemplate = "[%03d;5;%03dm"
 		p.Reset = "\\[\\e[0m\\]"
+		p.Bold = "\\[\\e[1m\\]"
+		p.Dollar = "\\$"
 
 	case "zsh":
 		p.ShTemplate = "%s"
-		p.ColorTemplate = "%%{[%s;5;%sm%%}"
-		p.Reset = "%{$reset_color%}"
+                // escape literal %'s (%%) as this gets passed through ShTemplate afterwards
+                p.ColorTemplate = "%%{[%d;5;%dm%%}"
+		// p.ColorTemplate = "%%{%%k{%d}%%f{%d}%%}"
+		p.Reset = "%{%k%f%}"
+		p.Bold = "%{[1m%}"
+		p.Dollar = "%#"
 	}
 	return p
 }

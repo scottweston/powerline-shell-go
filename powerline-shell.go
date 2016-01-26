@@ -64,9 +64,9 @@ func isWritableDir(dir string) bool {
 	return true
 }
 
-func addHgInfo(conf Configuration, separator string) [][]string {
+func addHgInfo(conf Configuration, separator string) [][]interface{} {
 	var fmt_str string
-	segments := [][]string{}
+	segments := [][]interface{}{}
 	branch_colour := conf.Colours.Hg.BackgroundDefault
 	text_colour := conf.Colours.Hg.Text
 
@@ -106,9 +106,9 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 				fmt_str = matchBranch[1]
 			}
 			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 || len(res_public) > 0 || len(res_draft) > 0 || len(res_secret) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 		// phases
@@ -132,9 +132,9 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 				fmt_str = fmt.Sprintf("%d\u271a", total)
 			}
 			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 
 		}
@@ -145,9 +145,9 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 				fmt_str = fmt.Sprintf("\u2714")
 			}
 			if len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 		if len(res_mod) > 0 {
@@ -157,9 +157,9 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 				fmt_str = fmt.Sprintf("\u270e")
 			}
 			if len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 		if len(res_untrk) > 0 {
@@ -169,9 +169,9 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 				fmt_str = fmt.Sprintf("\u272a")
 			}
 			if len(res_remove) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 		if len(res_remove) > 0 {
@@ -180,7 +180,7 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 			} else {
 				fmt_str = fmt.Sprintf("\u2620")
 			}
-			segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 		}
 
 		return segments
@@ -189,9 +189,9 @@ func addHgInfo(conf Configuration, separator string) [][]string {
 	}
 }
 
-func addGitInfo(conf Configuration, separator string) [][]string {
+func addGitInfo(conf Configuration, separator string) [][]interface{} {
 	var fmt_str string
-	segments := [][]string{}
+	segments := [][]interface{}{}
 	branch_colour := conf.Colours.Git.BackgroundDefault
 	text_colour := conf.Colours.Git.Text
 
@@ -246,9 +246,9 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 			fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
 
 			if len(matchStatus) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 
@@ -273,9 +273,9 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 			}
 
 			if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 
@@ -288,9 +288,9 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 			}
 
 			if len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 
@@ -303,9 +303,9 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 			}
 
 			if len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 
@@ -318,9 +318,9 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 			}
 
 			if len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str, separator, text_colour})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 
@@ -333,18 +333,18 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 			}
 
 			if len(cfd_res) > 0 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt_str})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
 			}
 		}
 
 		// conflicted files
 		if len(cfd_res) > 0 {
 			if (len(cfd_res)) > 1 {
-				segments = append(segments, []string{text_colour, branch_colour, fmt.Sprintf("%d\u273c", len(cfd_res))})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("%d\u273c", len(cfd_res))})
 			} else {
-				segments = append(segments, []string{text_colour, branch_colour, fmt.Sprintf("\u273c")})
+				segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("\u273c")})
 			}
 		}
 
@@ -354,8 +354,8 @@ func addGitInfo(conf Configuration, separator string) [][]string {
 	}
 }
 
-func addCwd(conf Configuration, cwdParts []string, ellipsis string, separator string) [][]string {
-	segments := [][]string{}
+func addCwd(conf Configuration, cwdParts []string, ellipsis string, separator string) [][]interface{} {
+	segments := [][]interface{}{}
 	back_col := conf.Colours.Cwd.Background
 	fore_col := conf.Colours.Cwd.Text
 
@@ -378,59 +378,59 @@ func addCwd(conf Configuration, cwdParts []string, ellipsis string, separator st
 	}
 
 	if home {
-		segments = append(segments, []string{conf.Colours.Cwd.HomeText, conf.Colours.Cwd.HomeBackground, "~"})
+		segments = append(segments, []interface{}{conf.Colours.Cwd.HomeText, conf.Colours.Cwd.HomeBackground, "~"})
 
 		if len(cwdParts) > 2 {
-			segments = append(segments, []string{fore_col, back_col, cwdParts[0], separator, fore_col})
-			segments = append(segments, []string{fore_col, back_col, ellipsis, separator, fore_col})
+			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[0], separator, fore_col})
+			segments = append(segments, []interface{}{fore_col, back_col, ellipsis, separator, fore_col})
 		} else if len(cwdParts) == 2 {
-			segments = append(segments, []string{fore_col, back_col, cwdParts[0], separator, fore_col})
+			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[0], separator, fore_col})
 		}
 	} else {
 		if len(cwdParts[len(cwdParts)-1]) == 0 {
-			segments = append(segments, []string{fore_col, back_col, "/"})
+			segments = append(segments, []interface{}{fore_col, back_col, "/"})
 		}
 
 		if len(cwdParts) > 3 {
-			segments = append(segments, []string{fore_col, back_col, cwdParts[1], separator, fore_col})
-			segments = append(segments, []string{fore_col, back_col, ellipsis, separator, fore_col})
+			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[1], separator, fore_col})
+			segments = append(segments, []interface{}{fore_col, back_col, ellipsis, separator, fore_col})
 		} else if len(cwdParts) > 2 {
-			segments = append(segments, []string{fore_col, back_col, cwdParts[1], separator, fore_col})
+			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[1], separator, fore_col})
 		}
 	}
 
 	if len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
-		segments = append(segments, []string{fore_col, back_col, cwdParts[len(cwdParts)-1]})
+		segments = append(segments, []interface{}{fore_col, back_col, cwdParts[len(cwdParts)-1]})
 	}
 
 	return segments
 }
 
-func addVirtulEnvName(conf Configuration, virtualEnvName string) []string {
+func addVirtulEnvName(conf Configuration, virtualEnvName string) []interface{} {
 	if virtualEnvName != "" {
-		return []string{conf.Colours.Virtualenv.Text, conf.Colours.Virtualenv.Background, virtualEnvName}
+		return []interface{}{conf.Colours.Virtualenv.Text, conf.Colours.Virtualenv.Background, virtualEnvName}
 	}
 
 	return nil
 }
 
-func addReturnCode(conf Configuration, ret_code int) []string {
+func addReturnCode(conf Configuration, ret_code int) []interface{} {
 	if ret_code != 0 {
-		return []string{conf.Colours.Returncode.Text, conf.Colours.Returncode.Background, fmt.Sprintf("%d", ret_code)}
+		return []interface{}{conf.Colours.Returncode.Text, conf.Colours.Returncode.Background, fmt.Sprintf("%d", ret_code)}
 	}
 
 	return nil
 }
 
-func addLock(conf Configuration, cwd string, lock string) []string {
+func addLock(conf Configuration, cwd string, lock string) []interface{} {
 	if !isWritableDir(cwd) {
-		return []string{conf.Colours.Lock.Text, conf.Colours.Lock.Background, lock}
+		return []interface{}{conf.Colours.Lock.Text, conf.Colours.Lock.Background, lock}
 	}
 
 	return nil
 }
 
-func addHostname(conf Configuration, includeUsername bool) []string {
+func addHostname(conf Configuration, includeUsername bool) []interface{} {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil
@@ -450,11 +450,11 @@ func addHostname(conf Configuration, includeUsername bool) []string {
 		hostname = user.Username + "@" + hostname
 	}
 
-	return []string{"016", fmt.Sprintf("%03d", sum%15), hostname}
+	return []interface{}{16, sum%15, hostname}
 }
 
-func addDollarPrompt(conf Configuration) []string {
-	return []string{conf.Colours.Dollar.Text, conf.Colours.Dollar.Background, "\\$"}
+func addDollarPrompt(conf Configuration, dollar string) []interface{} {
+	return []interface{}{conf.Colours.Dollar.Text, conf.Colours.Dollar.Background, dollar}
 }
 
 type Configuration struct {
@@ -467,36 +467,36 @@ type Configuration struct {
 	ShowReturnCode bool `json:"showReturnCode"`
 	Colours        struct {
 		Hg struct {
-			BackgroundDefault string `json:"backgroundDefault"`
-			BackgroundChanges string `json:"backgroundChanges"`
-			Text              string `json:"text"`
+			BackgroundDefault int `json:"backgroundDefault"`
+			BackgroundChanges int `json:"backgroundChanges"`
+			Text              int `json:"text"`
 		} `json:"hg"`
 		Git struct {
-			BackgroundDefault string `json:"backgroundDefault"`
-			BackgroundChanges string `json:"backgroundChanges"`
-			Text              string `json:"text"`
+			BackgroundDefault int `json:"backgroundDefault"`
+			BackgroundChanges int `json:"backgroundChanges"`
+			Text              int `json:"text"`
 		} `json:"git"`
 		Cwd struct {
-			Background     string `json:"background"`
-			Text           string `json:"text"`
-			HomeBackground string `json:"homeBackground"`
-			HomeText       string `json:"homeText"`
+			Background     int `json:"background"`
+			Text           int `json:"text"`
+			HomeBackground int `json:"homeBackground"`
+			HomeText       int `json:"homeText"`
 		} `json:"cwd"`
 		Virtualenv struct {
-			Background string `json:"background"`
-			Text       string `json:"text"`
+			Background int `json:"background"`
+			Text       int `json:"text"`
 		} `json:"virtualenv"`
 		Returncode struct {
-			Background string `json:"background"`
-			Text       string `json:"text"`
+			Background int `json:"background"`
+			Text       int `json:"text"`
 		} `json:"returncode"`
 		Lock struct {
-			Background string `json:"background"`
-			Text       string `json:"text"`
+			Background int `json:"background"`
+			Text       int `json:"text"`
 		} `json:"lock"`
 		Dollar struct {
-			Background string `json:"background"`
-			Text       string `json:"text"`
+			Background int `json:"background"`
+			Text       int `json:"text"`
 		} `json:"dollar"`
 	} `json:"colours"`
 }
@@ -509,28 +509,29 @@ func (self *Configuration) SetDefaults() {
 	self.ShowGit = true
 	self.ShowHg = true
 	self.ShowReturnCode = true
-	self.Colours.Hg.BackgroundDefault = "022"
-	self.Colours.Hg.BackgroundChanges = "064"
-	self.Colours.Hg.Text = "251"
-	self.Colours.Git.BackgroundDefault = "017"
-	self.Colours.Git.BackgroundChanges = "021"
-	self.Colours.Git.Text = "251"
-	self.Colours.Cwd.Background = "040"
-	self.Colours.Cwd.Text = "237"
-	self.Colours.Cwd.HomeBackground = "031"
-	self.Colours.Cwd.HomeText = "015"
-	self.Colours.Virtualenv.Background = "035"
-	self.Colours.Virtualenv.Text = "000"
-	self.Colours.Returncode.Background = "196"
-	self.Colours.Returncode.Text = "016"
-	self.Colours.Lock.Background = "124"
-	self.Colours.Lock.Text = "254"
-	self.Colours.Dollar.Background = "240"
-	self.Colours.Dollar.Text = "015"
+	self.Colours.Hg.BackgroundDefault = 22
+	self.Colours.Hg.BackgroundChanges = 64
+	self.Colours.Hg.Text = 251
+	self.Colours.Git.BackgroundDefault = 17
+	self.Colours.Git.BackgroundChanges = 21
+	self.Colours.Git.Text = 251
+	self.Colours.Cwd.Background = 40
+	self.Colours.Cwd.Text = 237
+	self.Colours.Cwd.HomeBackground = 31
+	self.Colours.Cwd.HomeText = 15
+	self.Colours.Virtualenv.Background = 35
+	self.Colours.Virtualenv.Text = 0
+	self.Colours.Returncode.Background = 196
+	self.Colours.Returncode.Text = 16
+	self.Colours.Lock.Background = 124
+	self.Colours.Lock.Text = 254
+	self.Colours.Dollar.Background = 240
+	self.Colours.Dollar.Text = 15
 }
 
 func main() {
 	var configuration Configuration
+	var set_title string = ""
 	configuration.SetDefaults()
 	shell := "bash"
 	last_retcode := 0
@@ -556,6 +557,16 @@ func main() {
 	p := powerline.NewPowerline(shell)
 	cwd, cwdParts := getCurrentWorkingDir()
 
+	if term, found := syscall.Getenv("TERM"); found {
+		if strings.Contains(term, "xterm") || strings.Contains(term, "rxvt") {
+			if shell == "bash" {
+				set_title = "\\[\\e]0;\\u@\\h: \\w\\a\\]"
+			} else if shell == "zsh" {
+				set_title = "%{\033]0;%n@%m: %~\007%}"
+			}
+		}
+	}
+
 	if configuration.ShowVirtualEnv {
 		p.AppendSegment(addVirtulEnvName(configuration, getVirtualEnv()))
 	}
@@ -577,7 +588,7 @@ func main() {
 	if configuration.ShowReturnCode {
 		p.AppendSegment(addReturnCode(configuration, last_retcode))
 	}
-	p.AppendSegment(addDollarPrompt(configuration))
+	p.AppendSegment(addDollarPrompt(configuration, p.Dollar))
 
-	fmt.Print(p.PrintSegments(), " ")
+	fmt.Print(set_title, p.PrintSegments(), " ")
 }
