@@ -217,23 +217,23 @@ func addGitInfo(conf config.Configuration, separator string) [][]interface{} {
 		matchStatus := reStatus.FindStringSubmatch(string(human))
 
 		// added files
-		add, _ := regexp.Compile(`(?m)^A  .*$`)
+		add, _ := regexp.Compile(`(?m)^A  `)
 		add_res := add.FindAllString(string(porcelain), -1)
 
 		// modified files
-		mod, _ := regexp.Compile(`(?m)^ M .*$`)
+		mod, _ := regexp.Compile(`(?m)^ M `)
 		mod_res := mod.FindAllString(string(porcelain), -1)
 
 		// uncommitted files
-		uncom, _ := regexp.Compile(`(?m)^\?\? .*$`)
+		uncom, _ := regexp.Compile(`(?m)^\?\? `)
 		uncom_res := uncom.FindAllString(string(porcelain), -1)
 
 		// removed files
-		del, _ := regexp.Compile(`(?m)^D  .*$`)
+		del, _ := regexp.Compile(`(?m)^D  `)
 		del_res := del.FindAllString(string(porcelain), -1)
 
 		// conflicted files
-		cfd, _ := regexp.Compile(`(?m)^(DD|AU|UD|UA|DU|AA|UU) .*$`)
+		cfd, _ := regexp.Compile(`(?m)^DD|AU|UD|UA|DU|AA|UU .*$`)
 		cfd_res := cfd.FindAllString(string(porcelain), -1)
 
 		// branch name
@@ -330,7 +330,7 @@ func addGitInfo(conf config.Configuration, separator string) [][]interface{} {
 		// deleted files
 		if len(del_res) > 0 {
 			if (len(del_res)) > 1 {
-				fmt_str = fmt.Sprintf("%d\u2620", len(uncom_res))
+				fmt_str = fmt.Sprintf("%d\u2620", len(del_res))
 			} else {
 				fmt_str = fmt.Sprintf("\u2620")
 			}
