@@ -60,9 +60,13 @@ func Test_addVirtualEnvName_present(t *testing.T) {
 
 func Test_addGitInfo_no_status(t *testing.T) {
         var conf config.Configuration
+	segments := [][]interface{}{}
+
         conf.SetDefaults()
-	var want = []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundDefault, "\u2693 master"}
-	rootSegment := addGitInfo(conf, "")
+	rootSegment := addGitInfo(conf, ">")
+
+        want := append(segments,
+          []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundDefault, "\u2693 master"})
 
 	if !reflect.DeepEqual(rootSegment, want) {
 		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
@@ -71,9 +75,13 @@ func Test_addGitInfo_no_status(t *testing.T) {
 
 func Test_addGitInfo_not_staged(t *testing.T) {
         var conf config.Configuration
+	segments := [][]interface{}{}
+
         conf.SetDefaults()
-	var want = []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundDefault, "\u2693 master"}
-	rootSegment := addGitInfo(conf, "")
+	rootSegment := addGitInfo(conf, ">")
+
+        want := append(segments,
+	  []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundDefault, "\u2693 master"})
 
 	if !reflect.DeepEqual(rootSegment, want) {
 		t.Errorf("addCwd returned %+v, not %+v", rootSegment, want)
