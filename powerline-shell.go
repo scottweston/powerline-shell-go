@@ -506,6 +506,10 @@ func main() {
 		}
 	}
 
+	if len(os.Args) > 2 {
+		last_retcode, _ = strconv.Atoi(os.Args[2])
+	}
+
 	if shell != "bash" && shell != "zsh" {
 		fmt.Printf("unsupported shell(%s)> ", shell)
 		os.Exit(1)
