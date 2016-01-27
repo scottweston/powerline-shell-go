@@ -31,7 +31,10 @@ import (
 	"syscall"
 
 	"github.com/scottweston/powerline-shell-go/powerline"
+	"github.com/scottweston/powerline-shell-go/powerline-config"
 )
+
+var build string
 
 func getCurrentWorkingDir() (string, []string) {
 	dir, err := filepath.Abs(".")
@@ -64,7 +67,7 @@ func isWritableDir(dir string) bool {
 	return true
 }
 
-func addHgInfo(conf Configuration, separator string) [][]interface{} {
+func addHgInfo(conf config.Configuration, separator string) [][]interface{} {
 	var fmt_str string
 	segments := [][]interface{}{}
 	branch_colour := conf.Colours.Hg.BackgroundDefault
@@ -189,7 +192,7 @@ func addHgInfo(conf Configuration, separator string) [][]interface{} {
 	}
 }
 
-func addGitInfo(conf Configuration, separator string) [][]interface{} {
+func addGitInfo(conf config.Configuration, separator string) [][]interface{} {
 	var fmt_str string
 	segments := [][]interface{}{}
 	branch_colour := conf.Colours.Git.BackgroundDefault
@@ -354,7 +357,7 @@ func addGitInfo(conf Configuration, separator string) [][]interface{} {
 	}
 }
 
-func addCwd(conf Configuration, cwdParts []string, ellipsis string, separator string) [][]interface{} {
+func addCwd(conf config.Configuration, cwdParts []string, ellipsis string, separator string) [][]interface{} {
 	segments := [][]interface{}{}
 	back_col := conf.Colours.Cwd.Background
 	fore_col := conf.Colours.Cwd.Text
@@ -406,7 +409,7 @@ func addCwd(conf Configuration, cwdParts []string, ellipsis string, separator st
 	return segments
 }
 
-func addVirtulEnvName(conf Configuration, virtualEnvName string) []interface{} {
+func addVirtulEnvName(conf config.Configuration, virtualEnvName string) []interface{} {
 	if virtualEnvName != "" {
 		return []interface{}{conf.Colours.Virtualenv.Text, conf.Colours.Virtualenv.Background, virtualEnvName}
 	}
@@ -414,7 +417,7 @@ func addVirtulEnvName(conf Configuration, virtualEnvName string) []interface{} {
 	return nil
 }
 
-func addReturnCode(conf Configuration, ret_code int) []interface{} {
+func addReturnCode(conf config.Configuration, ret_code int) []interface{} {
 	if ret_code != 0 {
 		return []interface{}{conf.Colours.Returncode.Text, conf.Colours.Returncode.Background, fmt.Sprintf("%d", ret_code)}
 	}
@@ -422,7 +425,7 @@ func addReturnCode(conf Configuration, ret_code int) []interface{} {
 	return nil
 }
 
-func addLock(conf Configuration, cwd string, lock string) []interface{} {
+func addLock(conf config.Configuration, cwd string, lock string) []interface{} {
 	if !isWritableDir(cwd) {
 		return []interface{}{conf.Colours.Lock.Text, conf.Colours.Lock.Background, lock}
 	}
@@ -430,16 +433,21 @@ func addLock(conf Configuration, cwd string, lock string) []interface{} {
 	return nil
 }
 
-func addHostname(conf Configuration, includeUsername bool) []interface{} {
+func addHostname(conf config.Configuration, includeUsername bool, hostHash bool) []interface{} {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil
 	}
 
-	// create a colour hash for the hostname
-	sum := 0
-	for _, v := range hostname {
-		sum += int(v)
+	back := 12
+
+	if hostHash {
+		// create a colour hash for the hostname
+		sum := 0
+		for _, v := range hostname {
+			sum += int(v)
+		}
+		back = sum % 15
 	}
 
 	if includeUsername {
@@ -450,87 +458,15 @@ func addHostname(conf Configuration, includeUsername bool) []interface{} {
 		hostname = user.Username + "@" + hostname
 	}
 
-	return []interface{}{16, sum%15, hostname}
+	return []interface{}{16, back, hostname}
 }
 
-func addDollarPrompt(conf Configuration, dollar string) []interface{} {
+func addDollarPrompt(conf config.Configuration, dollar string) []interface{} {
 	return []interface{}{conf.Colours.Dollar.Text, conf.Colours.Dollar.Background, dollar}
 }
 
-type Configuration struct {
-	ShowWritable   bool `json:"showWritable"`
-	ShowVirtualEnv bool `json:"showVirtualEnv"`
-	ShowCwd        bool `json:"showCwd"`
-	CwdMaxLength   int  `json:"cwdMaxLength"`
-	ShowGit        bool `json:"showGit"`
-	ShowHg         bool `json:"showHg"`
-	ShowReturnCode bool `json:"showReturnCode"`
-	Colours        struct {
-		Hg struct {
-			BackgroundDefault int `json:"backgroundDefault"`
-			BackgroundChanges int `json:"backgroundChanges"`
-			Text              int `json:"text"`
-		} `json:"hg"`
-		Git struct {
-			BackgroundDefault int `json:"backgroundDefault"`
-			BackgroundChanges int `json:"backgroundChanges"`
-			Text              int `json:"text"`
-		} `json:"git"`
-		Cwd struct {
-			Background     int `json:"background"`
-			Text           int `json:"text"`
-			HomeBackground int `json:"homeBackground"`
-			HomeText       int `json:"homeText"`
-		} `json:"cwd"`
-		Virtualenv struct {
-			Background int `json:"background"`
-			Text       int `json:"text"`
-		} `json:"virtualenv"`
-		Returncode struct {
-			Background int `json:"background"`
-			Text       int `json:"text"`
-		} `json:"returncode"`
-		Lock struct {
-			Background int `json:"background"`
-			Text       int `json:"text"`
-		} `json:"lock"`
-		Dollar struct {
-			Background int `json:"background"`
-			Text       int `json:"text"`
-		} `json:"dollar"`
-	} `json:"colours"`
-}
-
-func (self *Configuration) SetDefaults() {
-	self.ShowWritable = true
-	self.ShowVirtualEnv = true
-	self.ShowCwd = true
-	self.CwdMaxLength = 0
-	self.ShowGit = true
-	self.ShowHg = true
-	self.ShowReturnCode = true
-	self.Colours.Hg.BackgroundDefault = 22
-	self.Colours.Hg.BackgroundChanges = 64
-	self.Colours.Hg.Text = 251
-	self.Colours.Git.BackgroundDefault = 17
-	self.Colours.Git.BackgroundChanges = 21
-	self.Colours.Git.Text = 251
-	self.Colours.Cwd.Background = 40
-	self.Colours.Cwd.Text = 237
-	self.Colours.Cwd.HomeBackground = 31
-	self.Colours.Cwd.HomeText = 15
-	self.Colours.Virtualenv.Background = 35
-	self.Colours.Virtualenv.Text = 0
-	self.Colours.Returncode.Background = 196
-	self.Colours.Returncode.Text = 16
-	self.Colours.Lock.Background = 124
-	self.Colours.Lock.Text = 254
-	self.Colours.Dollar.Background = 240
-	self.Colours.Dollar.Text = 15
-}
-
 func main() {
-	var configuration Configuration
+	var configuration config.Configuration
 	var set_title string = ""
 	configuration.SetDefaults()
 	shell := "bash"
@@ -541,17 +477,27 @@ func main() {
 	if err == nil {
 		err = json.Unmarshal(data, &configuration)
 		if err != nil {
-			fmt.Println("configuration.error()$ ")
+			fmt.Printf("configuration error(%s)> ", err)
 			os.Exit(1)
 		}
 	}
 
 	if len(os.Args) > 1 {
-		shell = os.Args[1]
+		if os.Args[1] == "version" || os.Args[1] == "build" {
+			if build != "" {
+				fmt.Println(build)
+			} else {
+				fmt.Println("unknown")
+			}
+			os.Exit(0)
+		} else {
+			shell = os.Args[1]
+		}
 	}
 
-	if len(os.Args) > 2 {
-		last_retcode, _ = strconv.Atoi(os.Args[2])
+	if shell != "bash" && shell != "zsh" {
+		fmt.Printf("unsupported shell(%s)> ", shell)
+		os.Exit(1)
 	}
 
 	p := powerline.NewPowerline(shell)
@@ -559,11 +505,7 @@ func main() {
 
 	if term, found := syscall.Getenv("TERM"); found {
 		if strings.Contains(term, "xterm") || strings.Contains(term, "rxvt") {
-			if shell == "bash" {
-				set_title = "\\[\\e]0;\\u@\\h: \\w\\a\\]"
-			} else if shell == "zsh" {
-				set_title = "%{\033]0;%n@%m: %~\007%}"
-			}
+			set_title = p.SetTitle
 		}
 	}
 
@@ -571,7 +513,7 @@ func main() {
 		p.AppendSegment(addVirtulEnvName(configuration, getVirtualEnv()))
 	}
 	if _, found := syscall.Getenv("SSH_CLIENT"); found {
-		p.AppendSegment(addHostname(configuration, true))
+		p.AppendSegment(addHostname(configuration, true, true))
 	}
 	if configuration.ShowCwd {
 		p.AppendSegments(addCwd(configuration, cwdParts, p.Ellipsis, p.SeparatorThin))

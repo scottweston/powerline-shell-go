@@ -1,3 +1,2 @@
 #!/bin/bash
-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -v -o build/powerline.linux.amd64
-GOOS=linux GOARCH=386   CGO_ENABLED=1 go build -v -o build/powerline.linux.386
+go build -v -o build/powerline-shell-go -ldflags "-X main.build=`date -u +%Y%m%d.%H%M%S`"

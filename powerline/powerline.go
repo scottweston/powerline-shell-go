@@ -16,6 +16,7 @@ type Powerline struct {
 	SeparatorThin string
 	Ellipsis      string
 	Dollar        string
+        SetTitle      string
 	Bold          string
 	Segments      [][]interface{}
 }
@@ -84,6 +85,7 @@ func NewPowerline(shell string) Powerline {
 		p.Reset = "\\[\\e[0m\\]"
 		p.Bold = "\\[\\e[1m\\]"
 		p.Dollar = "\\$"
+                p.SetTitle = "\\[\\e]0;\\u@\\h: \\w\\a\\]"
 
 	case "zsh":
 		p.ShTemplate = "%s"
@@ -93,6 +95,7 @@ func NewPowerline(shell string) Powerline {
 		p.Reset = "%{%k%f%}"
 		p.Bold = "%{[1m%}"
 		p.Dollar = "%#"
+                p.SetTitle = "%{\033]0;%n@%m: %~\007%}"
 	}
 	return p
 }
