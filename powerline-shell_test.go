@@ -61,7 +61,7 @@ func Test_addVirtualEnvName_present(t *testing.T) {
 func Test_addGitInfo_no_status(t *testing.T) {
         var conf config.Configuration
         conf.SetDefaults()
-	var want = []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "master"}
+	var want = []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "\u2693 master"}
 	rootSegment := addGitInfo(conf, "")
 
 	if !reflect.DeepEqual(rootSegment, want) {
@@ -72,7 +72,7 @@ func Test_addGitInfo_no_status(t *testing.T) {
 func Test_addGitInfo_not_staged(t *testing.T) {
         var conf config.Configuration
         conf.SetDefaults()
-	var want = []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "master"}
+	var want = []interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "\u2693 master"}
 	rootSegment := addGitInfo(conf, "")
 
 	if !reflect.DeepEqual(rootSegment, want) {
