@@ -56,18 +56,9 @@ user    0m0.002s
 sys     0m0.004s
 ```
 
-## Building on Darwin and with Docker
+## Building
 
-    ./build.sh
+    $ make [all|linux|osx|windows|clean]
 
-It requires a running docker.
-
-## Building on Linux
-
-This assumes you have a working `go` environment (see https://golang.org)
-
-```
-go get -d
-mkdir -p build
-go build -o build/powerline-shell-go
-```
+Resultant binaries can be found under the `build` directory. By default `make` will
+build all vararents for all OS types.
