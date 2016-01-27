@@ -5,6 +5,7 @@ type Configuration struct {
 	ShowVirtualEnv bool `json:"showVirtualEnv"`
 	ShowCwd        bool `json:"showCwd"`
 	CwdMaxLength   int  `json:"cwdMaxLength"`
+	BatteryWarn    int  `json:"batteryWarn"`
 	ShowGit        bool `json:"showGit"`
 	ShowHg         bool `json:"showHg"`
 	ShowReturnCode bool `json:"showReturnCode"`
@@ -41,6 +42,10 @@ type Configuration struct {
 			Background int `json:"background"`
 			Text       int `json:"text"`
 		} `json:"dollar"`
+		Battery struct {
+			Background int `json:"background"`
+			Text       int `json:"text"`
+		} `json:"battery"`
 	} `json:"colours"`
 }
 
@@ -49,6 +54,7 @@ func (self *Configuration) SetDefaults() {
 	self.ShowVirtualEnv = true
 	self.ShowCwd = true
 	self.CwdMaxLength = 0
+        self.BatteryWarn = 0
 	self.ShowGit = true
 	self.ShowHg = true
 	self.ShowReturnCode = true
@@ -70,4 +76,6 @@ func (self *Configuration) SetDefaults() {
 	self.Colours.Lock.Text = 254
 	self.Colours.Dollar.Background = 240
 	self.Colours.Dollar.Text = 15
+	self.Colours.Battery.Background = 196
+	self.Colours.Battery.Text = 16
 }

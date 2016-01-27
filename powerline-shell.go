@@ -461,6 +461,17 @@ func addHostname(conf config.Configuration, includeUsername bool, hostHash bool)
 	return []interface{}{16, back, hostname}
 }
 
+func addBatteryWarn(conf config.Configuration) []interface{} {
+	battery, err := ioutil.ReadFile("/sys/class/power_supply/BAT0/capacity")
+	if err == nil {
+		capacity, _ := strconv.Atoi(strings.Trim(string(battery), " \n"))
+		if capacity <= conf.BatteryWarn {
+			return []interface{}{conf.Colours.Battery.Text, conf.Colours.Battery.Background, fmt.Sprintf("%d%%", capacity)}
+		}
+	}
+	return nil
+}
+
 func addDollarPrompt(conf config.Configuration, dollar string) []interface{} {
 	return []interface{}{conf.Colours.Dollar.Text, conf.Colours.Dollar.Background, dollar}
 }
@@ -529,6 +540,9 @@ func main() {
 	}
 	if configuration.ShowReturnCode {
 		p.AppendSegment(addReturnCode(configuration, last_retcode))
+	}
+	if configuration.BatteryWarn > 0 {
+		p.AppendSegment(addBatteryWarn(configuration))
 	}
 	p.AppendSegment(addDollarPrompt(configuration, p.Dollar))
 
