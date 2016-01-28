@@ -192,169 +192,162 @@ func addHgInfo(conf config.Configuration, separator string) [][]interface{} {
 	}
 }
 
-func addGitInfo(conf config.Configuration, separator string) [][]interface{} {
+func addGitInfo(conf config.Configuration, human string, porcelain string, separator string) [][]interface{} {
 	var fmt_str string
 	segments := [][]interface{}{}
 	branch_colour := conf.Colours.Git.BackgroundDefault
 	text_colour := conf.Colours.Git.Text
 
-	human, err := exec.Command("git", "status", "--ignore-submodules").Output()
-	if err == nil {
-		porcelain, _ := exec.Command("git", "status", "--ignore-submodules", "--porcelain").Output()
-
-		// any changes at all?
-		staged := !strings.Contains(string(human), "nothing to commit")
-		if staged {
-			branch_colour = conf.Colours.Git.BackgroundChanges
-		}
-
-		// what branch
-		reBranch := regexp.MustCompile(`^(HEAD detached at|HEAD detached from|# On branch|On branch) (\S+)`)
-		matchBranch := reBranch.FindStringSubmatch(string(human))
-
-		// are we ahead/behind
-		reStatus := regexp.MustCompile(`Your branch is (ahead|behind).*?([0-9]+) comm`)
-		matchStatus := reStatus.FindStringSubmatch(string(human))
-
-		// added files
-		add, _ := regexp.Compile(`(?m)^A  `)
-		add_res := add.FindAllString(string(porcelain), -1)
-
-		// modified files
-		mod, _ := regexp.Compile(`(?m)^ M `)
-		mod_res := mod.FindAllString(string(porcelain), -1)
-
-		// uncommitted files
-		uncom, _ := regexp.Compile(`(?m)^\?\? `)
-		uncom_res := uncom.FindAllString(string(porcelain), -1)
-
-		// removed files
-		del, _ := regexp.Compile(`(?m)^D  `)
-		del_res := del.FindAllString(string(porcelain), -1)
-
-		// conflicted files
-		cfd, _ := regexp.Compile(`(?m)^DD|AU|UD|UA|DU|AA|UU .*$`)
-		cfd_res := cfd.FindAllString(string(porcelain), -1)
-
-		// branch name
-		if len(matchBranch) > 0 {
-			if strings.Contains(matchBranch[1], "detached") {
-				fmt_str = "\u2704 "
-			} else {
-				fmt_str = "\u2693 "
-			}
-			if matchBranch[2] != "master" {
-				fmt_str = fmt.Sprintf("%s\ue0a0 ", fmt_str)
-			}
-			fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
-
-			if len(matchStatus) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-		}
-
-		// ahead/behind
-		if len(matchStatus) > 0 {
-			num, _ := strconv.Atoi(matchStatus[2])
-
-			if matchStatus[1] == "behind" {
-				if num > 1 {
-					fmt_str = fmt.Sprintf("%s\u25bc", matchStatus[2])
-				} else {
-					fmt_str = fmt.Sprintf("\u25bc")
-				}
-			} else if matchStatus[1] == "ahead" {
-				if num > 1 {
-					fmt_str = fmt.Sprintf("%s\u25b2", matchStatus[2])
-				} else {
-					fmt_str = fmt.Sprintf("\u25b2")
-				}
-			} else {
-				fmt_str = "unk"
-			}
-
-			if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-		}
-
-		// added files
-		if len(add_res) > 0 {
-			if (len(add_res)) > 1 {
-				fmt_str = fmt.Sprintf("%d\u2714", len(add_res))
-			} else {
-				fmt_str = fmt.Sprintf("\u2714")
-			}
-
-			if len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-		}
-
-		// modified files
-		if len(mod_res) > 0 {
-			if (len(mod_res)) > 1 {
-				fmt_str = fmt.Sprintf("%d\u270e", len(mod_res))
-			} else {
-				fmt_str = fmt.Sprintf("\u270e")
-			}
-
-			if len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-		}
-
-		// untracked files
-		if len(uncom_res) > 0 {
-			if (len(uncom_res)) > 1 {
-				fmt_str = fmt.Sprintf("%d\u272a", len(uncom_res))
-			} else {
-				fmt_str = fmt.Sprintf("\u272a")
-			}
-
-			if len(del_res) > 0 || len(cfd_res) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-		}
-
-		// deleted files
-		if len(del_res) > 0 {
-			if (len(del_res)) > 1 {
-				fmt_str = fmt.Sprintf("%d\u2620", len(del_res))
-			} else {
-				fmt_str = fmt.Sprintf("\u2620")
-			}
-
-			if len(cfd_res) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-		}
-
-		// conflicted files
-		if len(cfd_res) > 0 {
-			if (len(cfd_res)) > 1 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("%d\u273c", len(cfd_res))})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("\u273c")})
-			}
-		}
-
-		return segments
-	} else {
-		return nil
+	// any changes at all?
+	staged := !strings.Contains(human, "nothing to commit")
+	if staged {
+		branch_colour = conf.Colours.Git.BackgroundChanges
 	}
+
+	// what branch
+	reBranch := regexp.MustCompile(`^(HEAD detached at|HEAD detached from|# On branch|On branch) (\S+)`)
+	matchBranch := reBranch.FindStringSubmatch(human)
+
+	// are we ahead/behind
+	reStatus := regexp.MustCompile(`Your branch is (ahead|behind).*?([0-9]+) comm`)
+	matchStatus := reStatus.FindStringSubmatch(human)
+
+	// added files
+	add, _ := regexp.Compile(`(?m)^A  `)
+	add_res := add.FindAllString(porcelain, -1)
+
+	// modified files
+	mod, _ := regexp.Compile(`(?m)^ M `)
+	mod_res := mod.FindAllString(porcelain, -1)
+
+	// uncommitted files
+	uncom, _ := regexp.Compile(`(?m)^\?\? `)
+	uncom_res := uncom.FindAllString(porcelain, -1)
+
+	// removed files
+	del, _ := regexp.Compile(`(?m)^D  `)
+	del_res := del.FindAllString(porcelain, -1)
+
+	// conflicted files
+	cfd, _ := regexp.Compile(`(?m)^DD|AU|UD|UA|DU|AA|UU .*$`)
+	cfd_res := cfd.FindAllString(porcelain, -1)
+
+	// branch name
+	if len(matchBranch) > 0 {
+		if strings.Contains(matchBranch[1], "detached") {
+			fmt_str = "\u2704 "
+		} else {
+			fmt_str = "\u2693 "
+		}
+		if matchBranch[2] != "master" {
+			fmt_str = fmt.Sprintf("%s\ue0a0 ", fmt_str)
+		}
+		fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
+
+		if len(matchStatus) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// ahead/behind
+	if len(matchStatus) > 0 {
+		num, _ := strconv.Atoi(matchStatus[2])
+
+		if matchStatus[1] == "behind" {
+			if num > 1 {
+				fmt_str = fmt.Sprintf("%s\u25bc", matchStatus[2])
+			} else {
+				fmt_str = fmt.Sprintf("\u25bc")
+			}
+		} else if matchStatus[1] == "ahead" {
+			if num > 1 {
+				fmt_str = fmt.Sprintf("%s\u25b2", matchStatus[2])
+			} else {
+				fmt_str = fmt.Sprintf("\u25b2")
+			}
+		} else {
+			fmt_str = "unk"
+		}
+
+		if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// added files
+	if len(add_res) > 0 {
+		if (len(add_res)) > 1 {
+			fmt_str = fmt.Sprintf("%d\u2714", len(add_res))
+		} else {
+			fmt_str = fmt.Sprintf("\u2714")
+		}
+
+		if len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// modified files
+	if len(mod_res) > 0 {
+		if (len(mod_res)) > 1 {
+			fmt_str = fmt.Sprintf("%d\u270e", len(mod_res))
+		} else {
+			fmt_str = fmt.Sprintf("\u270e")
+		}
+
+		if len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// untracked files
+	if len(uncom_res) > 0 {
+		if (len(uncom_res)) > 1 {
+			fmt_str = fmt.Sprintf("%d\u272a", len(uncom_res))
+		} else {
+			fmt_str = fmt.Sprintf("\u272a")
+		}
+
+		if len(del_res) > 0 || len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// deleted files
+	if len(del_res) > 0 {
+		if (len(del_res)) > 1 {
+			fmt_str = fmt.Sprintf("%d\u2620", len(del_res))
+		} else {
+			fmt_str = fmt.Sprintf("\u2620")
+		}
+
+		if len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, separator, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// conflicted files
+	if len(cfd_res) > 0 {
+		if (len(cfd_res)) > 1 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("%d\u273c", len(cfd_res))})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("\u273c")})
+		}
+	}
+
+	return segments
 }
 
 func addCwd(conf config.Configuration, cwdParts []string, ellipsis string, separator string) [][]interface{} {
@@ -537,7 +530,11 @@ func main() {
 		p.AppendSegment(addLock(configuration, cwd, p.Lock))
 	}
 	if configuration.ShowGit {
-		p.AppendSegments(addGitInfo(configuration, p.SeparatorThin))
+		human, err := exec.Command("git", "status", "--ignore-submodules").Output()
+		if err == nil {
+			porcelain, _ := exec.Command("git", "status", "--ignore-submodules", "--porcelain").Output()
+			p.AppendSegments(addGitInfo(configuration, string(human), string(porcelain), p.SeparatorThin))
+		}
 	}
 	if configuration.ShowHg {
 		p.AppendSegments(addHgInfo(configuration, p.SeparatorThin))
