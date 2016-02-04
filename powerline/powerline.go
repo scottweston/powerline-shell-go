@@ -10,13 +10,23 @@ type Powerline struct {
 	BashTemplate  string
 	ColorTemplate string
 	Reset         string
-	Lock          string
-	Network       string
 	Separator     string
 	SeparatorThin string
 	Ellipsis      string
+	ReadOnly      string
+	Phases        string
+	Added         string
+	Modified      string
+	Untracked     string
+	Removed       string
+	Detached      string
+	Attached      string
+	Branch        string
+	Ahead         string
+	Behind        string
+	Conflicted    string
 	Dollar        string
-        SetTitle      string
+	SetTitle      string
 	Bold          string
 	Segments      [][]interface{}
 }
@@ -69,13 +79,28 @@ func (p *Powerline) PrintSegments() string {
 	return buffer.String()
 }
 
-func NewPowerline(shell string) Powerline {
+func NewPowerline(shell string, fancy bool) Powerline {
 	p := Powerline{
-		Lock:          "\uE0A2",
-		Network:       "\uE0A2",
-		Separator:     "\uE0B0",
-		SeparatorThin: "\uE0B1",
+		ReadOnly:      "\u2297",
+		Separator:     "",
+		SeparatorThin: "/",
 		Ellipsis:      "\u2026",
+		Branch:        "\u2607",
+		Phases:        "+",
+		Added:         "\u2714",
+		Modified:      "\u270e",
+		Untracked:     "\u2690",
+		Removed:       "\u2716",
+		Detached:      "\u2702",
+		Ahead:         "\u21d1",
+		Behind:        "\u21d3",
+		Conflicted:    "\u203c",
+	}
+
+	if fancy {
+		p.Separator = "\ue0b0"
+		p.SeparatorThin = "\ue0b1"
+		p.Branch = "\ue0a0"
 	}
 
 	switch shell {
@@ -85,17 +110,17 @@ func NewPowerline(shell string) Powerline {
 		p.Reset = "\\[\\e[0m\\]"
 		p.Bold = "\\[\\e[1m\\]"
 		p.Dollar = "\\$"
-                p.SetTitle = "\\[\\e]0;\\u@\\h: \\w\\a\\]"
+		p.SetTitle = "\\[\\e]0;\\u@\\h: \\w\\a\\]"
 
 	case "zsh":
 		p.ShTemplate = "%s"
-                // escape literal %'s (%%) as this gets passed through ShTemplate afterwards
-                p.ColorTemplate = "%%{[%d;5;%dm%%}"
+		// escape literal %'s (%%) as this gets passed through ShTemplate afterwards
+		p.ColorTemplate = "%%{[%d;5;%dm%%}"
 		// p.ColorTemplate = "%%{%%k{%d}%%f{%d}%%}"
 		p.Reset = "%{%k%f%}"
 		p.Bold = "%{[1m%}"
 		p.Dollar = "%#"
-                p.SetTitle = "%{\033]0;%n@%m: %~\007%}"
+		p.SetTitle = "%{\033]0;%n@%m: %~\007%}"
 	}
 	return p
 }
