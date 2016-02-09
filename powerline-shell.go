@@ -199,11 +199,11 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 	text_colour := conf.Colours.Git.Text
 
 	// what branch
-  reBranch := regexp.MustCompile(`(?m)^## (([^ \.\n]+).*|.* on (\S+))$`)
+	reBranch := regexp.MustCompile(`(?m)^## (([^ \.\n]+).*|.* on (\S+))$`)
 	matchBranch := reBranch.FindStringSubmatch(porcelain)
 
-  // detached?
-  reDetached := regexp.MustCompile(`(?m)^## .* \(no branch\)`)
+	// detached?
+	reDetached := regexp.MustCompile(`(?m)^## .* \(no branch\)`)
 	matchDetached := reDetached.FindStringSubmatch(porcelain)
 
 	// are we ahead/behind
@@ -231,7 +231,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 	cfd_res := cfd.FindAllString(porcelain, -1)
 
 	// any changes at all?
-  if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+	if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
 		branch_colour = conf.Colours.Git.BackgroundChanges
 	}
 

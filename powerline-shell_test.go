@@ -62,17 +62,14 @@ func Test_addVirtualEnvName_present(t *testing.T) {
 func Test_addGitInfo_no_status(t *testing.T) {
 	var conf config.Configuration
 	segments := [][]interface{}{}
-	var human string = `On branch master
-Your branch is up-to-date with 'origin/master'.
-nothing to commit, working directory clean
-`
-	var porc string = `
+
+	var porc string = `## master
 `
 
   p := powerline.NewPowerline("bash", false)
 
 	conf.SetDefaults()
-	rootSegment := addGitInfo(conf, human, porc, p)
+	rootSegment := addGitInfo(conf, porc, p)
 
 	want := append(segments,
 		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundDefault, "master"})
@@ -85,25 +82,9 @@ nothing to commit, working directory clean
 func Test_addGitInfo_not_staged(t *testing.T) {
 	var conf config.Configuration
 	segments := [][]interface{}{}
-	var human string = `On branch master
-Your branch is up-to-date with 'origin/master'.
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
 
-           added:   added.go
-	modified:   modified.go
-         deleted:   deleted.go
-      conflicted:   conflicted.go
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	not_staged.go
-
-no changes added to commit (use "git add" and/or "git commit -a")
-`
-	var porc string = ` M modifed.go
+	var porc string = `## master
+ M modifed.go
 A  added.go
 D  deleted.go
 DD conflicted.go
@@ -113,7 +94,7 @@ DD conflicted.go
   p := powerline.NewPowerline("bash", false)
 
 	conf.SetDefaults()
-	rootSegment := addGitInfo(conf, human, porc, p)
+	rootSegment := addGitInfo(conf, porc, p)
 
 	want := append(segments,
 		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "master", p.SeparatorThin, conf.Colours.Git.Text},
