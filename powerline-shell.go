@@ -192,25 +192,23 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{}
 	}
 }
 
-func addGitInfo(conf config.Configuration, human string, porcelain string, p powerline.Powerline) [][]interface{} {
+func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerline) [][]interface{} {
 	var fmt_str string
 	segments := [][]interface{}{}
 	branch_colour := conf.Colours.Git.BackgroundDefault
 	text_colour := conf.Colours.Git.Text
 
-	// any changes at all?
-	staged := !strings.Contains(human, "nothing to commit")
-	if staged {
-		branch_colour = conf.Colours.Git.BackgroundChanges
-	}
-
 	// what branch
-	reBranch := regexp.MustCompile(`^(HEAD detached at|HEAD detached from|# On branch|On branch) (\S+)`)
-	matchBranch := reBranch.FindStringSubmatch(human)
+  reBranch := regexp.MustCompile(`(?m)^## (([^ \.\n]+).*|.* on (\S+))$`)
+	matchBranch := reBranch.FindStringSubmatch(porcelain)
+
+  // detached?
+  reDetached := regexp.MustCompile(`(?m)^## .* \(no branch\)`)
+	matchDetached := reDetached.FindStringSubmatch(porcelain)
 
 	// are we ahead/behind
-	reStatus := regexp.MustCompile(`Your branch is (ahead|behind).*?([0-9]+) comm`)
-	matchStatus := reStatus.FindStringSubmatch(human)
+	reStatus := regexp.MustCompile(`(?m)^## .* \[(ahead|behind) ([0-9]+)\]`)
+	matchStatus := reStatus.FindStringSubmatch(porcelain)
 
 	// added files
 	add, _ := regexp.Compile(`(?m)^A. `)
@@ -232,9 +230,14 @@ func addGitInfo(conf config.Configuration, human string, porcelain string, p pow
 	cfd, _ := regexp.Compile(`(?m)^DD|AU|UD|UA|DU|AA|UU .*$`)
 	cfd_res := cfd.FindAllString(porcelain, -1)
 
+	// any changes at all?
+  if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+		branch_colour = conf.Colours.Git.BackgroundChanges
+	}
+
 	// branch name
 	if len(matchBranch) > 0 {
-		if strings.Contains(matchBranch[1], "detached") {
+		if len(matchDetached) > 0 {
 			fmt_str = p.Detached + " "
 		} else {
 			fmt_str = ""
@@ -535,10 +538,9 @@ func main() {
 		p.AppendSegment(addLock(configuration, cwd, p))
 	}
 	if configuration.ShowGit {
-		human, err := exec.Command("git", "status", "--ignore-submodules").Output()
+		porcelain, err := exec.Command("git", "status", "--ignore-submodules", "-b", "--porcelain").Output()
 		if err == nil {
-			porcelain, _ := exec.Command("git", "status", "--ignore-submodules", "--porcelain").Output()
-			p.AppendSegments(addGitInfo(configuration, string(human), string(porcelain), p))
+			p.AppendSegments(addGitInfo(configuration, string(porcelain), p))
 		}
 	}
 	if configuration.ShowHg {
