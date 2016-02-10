@@ -43,7 +43,7 @@ Install powerline-shell-go and add the following to your `~/.zshrc`
     $ make [all|linux|osx|windows|clean]
 
 Resultant binaries can be found under the `build` directory. By default `make` will
-build all vararents for all OS types.
+build all variants for all OS types.
 
 ## Runtime enable/disable
 
