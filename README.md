@@ -6,7 +6,7 @@ Attempted fork of [powerline-shell](https://github.com/milkbikis/powerline-shell
 
 Install the binary with
 
-    go get github.com/scottweston/powerline-shell-go
+    go get -d github.com/scottweston/powerline-shell-go
     go install github.com/scottweston/powerline-shell-go
 
 ### Bash
