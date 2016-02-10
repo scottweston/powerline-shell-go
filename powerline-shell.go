@@ -514,8 +514,92 @@ func main() {
 	var p powerline.Powerline
 	if _, found := syscall.Getenv("LC_POWERLINE"); found {
 		p = powerline.NewPowerline(shell, true)
+		if configuration.Icons.Powerline.Added != "" {
+			p.Added = configuration.Icons.Powerline.Added
+		}
+		if configuration.Icons.Powerline.Ahead != "" {
+			p.Ahead = configuration.Icons.Powerline.Ahead
+		}
+		if configuration.Icons.Powerline.Behind != "" {
+			p.Behind = configuration.Icons.Powerline.Behind
+		}
+		if configuration.Icons.Powerline.Branch != "" {
+			p.Branch = configuration.Icons.Powerline.Branch
+		}
+		if configuration.Icons.Powerline.Conflicted != "" {
+			p.Conflicted = configuration.Icons.Powerline.Conflicted
+		}
+		if configuration.Icons.Powerline.Detached != "" {
+			p.Detached = configuration.Icons.Powerline.Detached
+		}
+		if configuration.Icons.Powerline.Ellipsis != "" {
+			p.Ellipsis = configuration.Icons.Powerline.Ellipsis
+		}
+		if configuration.Icons.Powerline.Modified != "" {
+			p.Modified = configuration.Icons.Powerline.Modified
+		}
+		if configuration.Icons.Powerline.Phases != "" {
+			p.Phases = configuration.Icons.Powerline.Phases
+		}
+		if configuration.Icons.Powerline.ReadOnly != "" {
+			p.ReadOnly = configuration.Icons.Powerline.ReadOnly
+		}
+		if configuration.Icons.Powerline.Removed != "" {
+			p.Removed = configuration.Icons.Powerline.Removed
+		}
+		if configuration.Icons.Powerline.SeparatorThin != "" {
+			p.SeparatorThin = configuration.Icons.Powerline.SeparatorThin
+		}
+		if configuration.Icons.Powerline.Separator != "" {
+			p.Separator = configuration.Icons.Powerline.Separator
+		}
+		if configuration.Icons.Powerline.Untracked != "" {
+			p.Untracked = configuration.Icons.Powerline.Untracked
+		}
 	} else {
 		p = powerline.NewPowerline(shell, false)
+		if configuration.Icons.Plain.Added != "" {
+			p.Added = configuration.Icons.Plain.Added
+		}
+		if configuration.Icons.Plain.Ahead != "" {
+			p.Ahead = configuration.Icons.Plain.Ahead
+		}
+		if configuration.Icons.Plain.Behind != "" {
+			p.Behind = configuration.Icons.Plain.Behind
+		}
+		if configuration.Icons.Plain.Branch != "" {
+			p.Branch = configuration.Icons.Plain.Branch
+		}
+		if configuration.Icons.Plain.Conflicted != "" {
+			p.Conflicted = configuration.Icons.Plain.Conflicted
+		}
+		if configuration.Icons.Plain.Detached != "" {
+			p.Detached = configuration.Icons.Plain.Detached
+		}
+		if configuration.Icons.Plain.Ellipsis != "" {
+			p.Ellipsis = configuration.Icons.Plain.Ellipsis
+		}
+		if configuration.Icons.Plain.Modified != "" {
+			p.Modified = configuration.Icons.Plain.Modified
+		}
+		if configuration.Icons.Plain.Phases != "" {
+			p.Phases = configuration.Icons.Plain.Phases
+		}
+		if configuration.Icons.Plain.ReadOnly != "" {
+			p.ReadOnly = configuration.Icons.Plain.ReadOnly
+		}
+		if configuration.Icons.Plain.Removed != "" {
+			p.Removed = configuration.Icons.Plain.Removed
+		}
+		if configuration.Icons.Plain.SeparatorThin != "" {
+			p.SeparatorThin = configuration.Icons.Plain.SeparatorThin
+		}
+		if configuration.Icons.Plain.Separator != "" {
+			p.Separator = configuration.Icons.Plain.Separator
+		}
+		if configuration.Icons.Plain.Untracked != "" {
+			p.Untracked = configuration.Icons.Plain.Untracked
+		}
 	}
 	cwd, cwdParts := getCurrentWorkingDir()
 

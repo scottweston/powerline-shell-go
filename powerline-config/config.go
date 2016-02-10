@@ -9,7 +9,41 @@ type Configuration struct {
 	ShowGit        bool `json:"showGit"`
 	ShowHg         bool `json:"showHg"`
 	ShowReturnCode bool `json:"showReturnCode"`
-	Colours        struct {
+	Icons          struct {
+		Powerline struct {
+			Added         string `json:"added"`
+			Ahead         string `json:"ahead"`
+			Behind        string `json:"behind"`
+			Branch        string `json:"branch"`
+			Conflicted    string `json:"conflicted"`
+			Detached      string `json:"detached"`
+			Ellipsis      string `json:"ellipsis"`
+			Modified      string `json:"modified"`
+			Phases        string `json:"phases"`
+			ReadOnly      string `json:"readonly"`
+			Removed       string `json:"removed"`
+			SeparatorThin string `json:"separatorthin"`
+			Separator     string `json:"separator"`
+			Untracked     string `json:"untracked"`
+		} `json:"powerline"`
+		Plain struct {
+			Added         string `json:"added"`
+			Ahead         string `json:"ahead"`
+			Behind        string `json:"behind"`
+			Branch        string `json:"branch"`
+			Conflicted    string `json:"conflicted"`
+			Detached      string `json:"detached"`
+			Ellipsis      string `json:"ellipsis"`
+			Modified      string `json:"modified"`
+			Phases        string `json:"phases"`
+			ReadOnly      string `json:"readonly"`
+			Removed       string `json:"removed"`
+			SeparatorThin string `json:"separatorthin"`
+			Separator     string `json:"separator"`
+			Untracked     string `json:"untracked"`
+		} `json:"plain"`
+	} `json:"icons"`
+	Colours struct {
 		Hg struct {
 			BackgroundDefault int `json:"backgroundDefault"`
 			BackgroundChanges int `json:"backgroundChanges"`
@@ -54,7 +88,7 @@ func (self *Configuration) SetDefaults() {
 	self.ShowVirtualEnv = true
 	self.ShowCwd = true
 	self.CwdMaxLength = 0
-        self.BatteryWarn = 0
+	self.BatteryWarn = 0
 	self.ShowGit = true
 	self.ShowHg = true
 	self.ShowReturnCode = true
