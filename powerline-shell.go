@@ -32,6 +32,7 @@ import (
 
 	"github.com/scottweston/powerline-shell-go/powerline"
 	"github.com/scottweston/powerline-shell-go/powerline-config"
+	"github.com/scottweston/powerline-shell-go/powerline-writetest"
 )
 
 var build string
@@ -55,16 +56,6 @@ func getVirtualEnv() string {
 
 	virtualEnvName := path.Base(virtualEnv)
 	return virtualEnvName
-}
-
-func isWritableDir(dir string) bool {
-	tmpPath := path.Join(dir, ".powerline-write-test")
-	_, err := os.Create(tmpPath)
-	if err != nil {
-		return false
-	}
-	os.Remove(tmpPath)
-	return true
 }
 
 func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{} {
@@ -422,7 +413,7 @@ func addReturnCode(conf config.Configuration, ret_code int) []interface{} {
 }
 
 func addLock(conf config.Configuration, cwd string, p powerline.Powerline) []interface{} {
-	if !isWritableDir(cwd) {
+	if !writetest.IsWritableDir(cwd) {
 		return []interface{}{conf.Colours.Lock.Text, conf.Colours.Lock.Background, p.ReadOnly}
 	}
 
