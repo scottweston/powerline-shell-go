@@ -32,7 +32,6 @@ import (
 
 	"github.com/scottweston/powerline-shell-go/powerline"
 	"github.com/scottweston/powerline-shell-go/powerline-config"
-	"github.com/scottweston/powerline-shell-go/powerline-writetest"
 )
 
 var build string
@@ -201,6 +200,10 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 	reStatus := regexp.MustCompile(`(?m)^## .* \[(ahead|behind) ([0-9]+)\]`)
 	matchStatus := reStatus.FindStringSubmatch(porcelain)
 
+	// renamed files
+	rename, _ := regexp.Compile(`(?m)^R. `)
+	rename_res := rename.FindAllString(porcelain, -1)
+
 	// added files
 	add, _ := regexp.Compile(`(?m)^A. `)
 	add_res := add.FindAllString(porcelain, -1)
@@ -222,7 +225,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 	cfd_res := cfd.FindAllString(porcelain, -1)
 
 	// any changes at all?
-	if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+	if len(rename_res) > 0 || len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
 		branch_colour = conf.Colours.Git.BackgroundChanges
 	}
 
@@ -263,6 +266,21 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 			}
 		} else {
 			fmt_str = "unk"
+		}
+
+		if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
+		} else {
+			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+		}
+	}
+
+	// renamed files
+	if len(rename_res) > 0 {
+		if (len(rename_res)) > 1 {
+			fmt_str = fmt.Sprintf("%d%s", len(rename_res), p.Renamed)
+		} else {
+			fmt_str = p.Renamed
 		}
 
 		if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
@@ -413,7 +431,7 @@ func addReturnCode(conf config.Configuration, ret_code int) []interface{} {
 }
 
 func addLock(conf config.Configuration, cwd string, p powerline.Powerline) []interface{} {
-	if !writetest.IsWritableDir(cwd) {
+	if !IsWritableDir(cwd) {
 		return []interface{}{conf.Colours.Lock.Text, conf.Colours.Lock.Background, p.ReadOnly}
 	}
 

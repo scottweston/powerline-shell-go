@@ -22,6 +22,7 @@ type Configuration struct {
 			Phases        string `json:"phases"`
 			ReadOnly      string `json:"readonly"`
 			Removed       string `json:"removed"`
+			Renamed       string `json:"renamed"`
 			SeparatorThin string `json:"separatorthin"`
 			Separator     string `json:"separator"`
 			Untracked     string `json:"untracked"`
@@ -38,6 +39,7 @@ type Configuration struct {
 			Phases        string `json:"phases"`
 			ReadOnly      string `json:"readonly"`
 			Removed       string `json:"removed"`
+			Renamed       string `json:"renamed"`
 			SeparatorThin string `json:"separatorthin"`
 			Separator     string `json:"separator"`
 			Untracked     string `json:"untracked"`

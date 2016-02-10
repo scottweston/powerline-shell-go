@@ -19,6 +19,7 @@ type Powerline struct {
 	Modified      string
 	Untracked     string
 	Removed       string
+	Renamed       string
 	Detached      string
 	Attached      string
 	Branch        string
@@ -91,6 +92,7 @@ func NewPowerline(shell string, fancy bool) Powerline {
 		Modified:      "\u270e",
 		Untracked:     "\u2690",
 		Removed:       "\u2716",
+		Renamed:       "\u2608",
 		Detached:      "\u2702",
 		Ahead:         "\u21d1",
 		Behind:        "\u21d3",

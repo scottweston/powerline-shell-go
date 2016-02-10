@@ -1,6 +1,6 @@
 // +build linux darwin
 
-package writetest
+package main
 
 import (
 	"golang.org/x/sys/unix"
