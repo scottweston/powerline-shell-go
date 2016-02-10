@@ -488,13 +488,15 @@ func main() {
 	shell := "bash"
 	last_retcode := 0
 
-	user, _ := user.Current()
-	data, err := ioutil.ReadFile(user.HomeDir + "/.config/powerline-shell-go/config.json")
+	user, err := user.Current()
 	if err == nil {
-		err = json.Unmarshal(data, &configuration)
-		if err != nil {
-			fmt.Printf("configuration error(%s)> ", err)
-			os.Exit(1)
+		data, err := ioutil.ReadFile(user.HomeDir + "/.config/powerline-shell-go/config.json")
+		if err == nil {
+			err = json.Unmarshal(data, &configuration)
+			if err != nil {
+				fmt.Printf("configuration error(%s)> ", err)
+				os.Exit(1)
+			}
 		}
 	}
 
