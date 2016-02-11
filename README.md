@@ -60,7 +60,8 @@ way remote hosts can show fancy Powerline characters if your client supports it.
 
 ## Configuration
 
-Configure the prompt via: `~/.config/powerline-shell-go/config.json`
+Configure the prompt via the file `~/.config/powerline-shell-go/config.json` and
+override as many or as few options as you like:
 
 ```
 {
@@ -139,3 +140,22 @@ Configure the prompt via: `~/.config/powerline-shell-go/config.json`
   }
 }
 ```
+
+## Termux
+
+Works just fine. You'll want to install
+[Termux](https://play.google.com/store/apps/details?id=com.termux) and the
+[Termux:Styling](https://play.google.com/store/apps/details?id=com.termux.styling)
+apps to select a Powerline font and update your `~/.bash_profile` to include:
+
+```
+export LC_POWERLINE=1
+
+function _update_ps1() {
+  export PS1="$(powerline-shell-go bash $? 2> /dev/null)"
+}
+
+export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+```
+
+![Termux](termux.png)
