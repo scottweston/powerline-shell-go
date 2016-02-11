@@ -162,4 +162,13 @@ function _update_ps1() {
 export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
 ```
 
+To build simply install `golang` and build like normal:
+
+```
+$ apt-get install golang
+$ export GOPATH=~
+$ go get -d github.com/scottweston/powerline-shell-go
+$ go install github.com/scottweston/powerline-shell-go
+```
+
 ![Termux](termux.png)
