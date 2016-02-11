@@ -18,6 +18,7 @@ Install powerline-shell-go and add the following to your `~/.bashrc`
     }
 
     export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+    export LC_POWERLINE=1
 
 ### Zsh
 
@@ -37,6 +38,7 @@ Install powerline-shell-go and add the following to your `~/.zshrc`
     }
 
     install_powerline_precmd
+    export LC_POWERLINE=1
 
 ## Building
 
@@ -48,7 +50,8 @@ build all variants for all OS types.
 ## Runtime enable/disable
 
 The environment variable `LC_POWERLINE` is used to enable Powerline font support
-or to fallback to a plain mode. In your `~/.ssh/config` add the following lines:
+otherwise `powerline-shell-go` will fallback to a plain mode. If you want this
+variable available in remote hosts then in your `~/.ssh/config` add the following lines:
 
 ```
 Host *
@@ -56,7 +59,8 @@ Host *
 ```
 And then on clients with Powerline fonts installed set the envvar `LC_POWERLINE` in
 your shell of choice (e.g. `echo export LC_POWERLINE=1 >> ~/.bashrc`), this
-way remote hosts can show fancy Powerline characters if your client supports it.
+way remote hosts can show fancy Powerline characters if your client supports it but
+will otherwise fallback to a plain mode.
 
 ## Configuration
 
