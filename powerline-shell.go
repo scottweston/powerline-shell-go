@@ -561,6 +561,9 @@ func main() {
 		if configuration.Icons.Powerline.Removed != "" {
 			p.Removed = configuration.Icons.Powerline.Removed
 		}
+		if configuration.Icons.Powerline.Renamed != "" {
+			p.Renamed = configuration.Icons.Powerline.Renamed
+		}
 		if configuration.Icons.Powerline.SeparatorThin != "" {
 			p.SeparatorThin = configuration.Icons.Powerline.SeparatorThin
 		}
@@ -604,6 +607,9 @@ func main() {
 		}
 		if configuration.Icons.Plain.Removed != "" {
 			p.Removed = configuration.Icons.Plain.Removed
+		}
+		if configuration.Icons.Plain.Renamed != "" {
+			p.Renamed = configuration.Icons.Plain.Renamed
 		}
 		if configuration.Icons.Plain.SeparatorThin != "" {
 			p.SeparatorThin = configuration.Icons.Plain.SeparatorThin
