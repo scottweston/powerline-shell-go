@@ -241,7 +241,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		}
 		fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
 
-		if len(matchStatus) > 0 || len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+		if len(matchStatus) > 0 || len(rename_res) > 0 || len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
 			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
 		} else {
 			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
@@ -268,7 +268,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 			fmt_str = "unk"
 		}
 
-		if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
+		if len(rename_res) > 0 || len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
 			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
 		} else {
 			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
