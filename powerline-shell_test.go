@@ -66,7 +66,7 @@ func Test_addGitInfo_no_status(t *testing.T) {
 	var porc string = `## master
 `
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	conf.SetDefaults()
 	rootSegment := addGitInfo(conf, porc, p)
@@ -91,7 +91,7 @@ DD conflicted.go
 ?? not_staged.go
 `
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	conf.SetDefaults()
 	rootSegment := addGitInfo(conf, porc, p)
@@ -101,7 +101,7 @@ DD conflicted.go
 		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, p.Added, p.SeparatorThin, conf.Colours.Git.Text},
 		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, p.Modified, p.SeparatorThin, conf.Colours.Git.Text},
 		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, p.Untracked, p.SeparatorThin, conf.Colours.Git.Text},
-		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "2"+p.Removed, p.SeparatorThin, conf.Colours.Git.Text},
+		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, "2" + p.Removed, p.SeparatorThin, conf.Colours.Git.Text},
 		[]interface{}{conf.Colours.Git.Text, conf.Colours.Git.BackgroundChanges, p.Conflicted},
 	)
 
@@ -115,7 +115,7 @@ func Test_addCwd_root(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "/"
 	parts := strings.Split(dir, "/")
@@ -133,7 +133,7 @@ func Test_addCwd_root_one(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "/gocode"
 	parts := strings.Split(dir, "/")
@@ -154,7 +154,7 @@ func Test_addCwd_root_two(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "/gocode/src"
 	parts := strings.Split(dir, "/")
@@ -176,7 +176,7 @@ func Test_addCwd_root_three(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "/gocode/src/github.com"
 	parts := strings.Split(dir, "/")
@@ -199,7 +199,7 @@ func Test_addCwd_home(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "~"
 	parts := strings.Split(dir, "/")
@@ -217,7 +217,7 @@ func Test_addCwd_home_one(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "~/gocode"
 	parts := strings.Split(dir, "/")
@@ -239,7 +239,7 @@ func Test_addCwd_home_two(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "~/gocode/src"
 	parts := strings.Split(dir, "/")
@@ -262,7 +262,7 @@ func Test_addCwd_home_three(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "~/gocode/src/github.com"
 	parts := strings.Split(dir, "/")
@@ -286,7 +286,7 @@ func Test_addCwd_home_five(t *testing.T) {
 	conf.SetDefaults()
 	segments := [][]interface{}{}
 
-  p := powerline.NewPowerline("bash", false)
+	p := powerline.NewPowerline("bash", false)
 
 	dir := "~/gocode/src/github.com/wm/powerline-shell-go"
 	parts := strings.Split(dir, "/")

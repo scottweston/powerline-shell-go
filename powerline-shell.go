@@ -369,7 +369,7 @@ func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline)
 
 	home := false
 	if cwdParts[0] == "~" {
-		cwdParts = cwdParts[1:len(cwdParts)]
+		cwdParts = cwdParts[1:]
 		home = true
 	}
 
@@ -489,14 +489,17 @@ func main() {
 	last_retcode := 0
 
 	user, err := user.Current()
+	var data []byte
 	if err == nil {
-		data, err := ioutil.ReadFile(user.HomeDir + "/.config/powerline-shell-go/config.json")
-		if err == nil {
-			err = json.Unmarshal(data, &configuration)
-			if err != nil {
-				fmt.Printf("configuration error(%s)> ", err)
-				os.Exit(1)
-			}
+		data, err = ioutil.ReadFile(user.HomeDir + "/.config/powerline-shell-go/config.json")
+	} else if home, found := syscall.Getenv("HOME"); found {
+		data, err = ioutil.ReadFile(home + "/.config/powerline-shell-go/config.json")
+	}
+	if err == nil {
+		err = json.Unmarshal(data, &configuration)
+		if err != nil {
+			fmt.Printf("configuration error(%s)> ", err)
+			os.Exit(1)
 		}
 	}
 
