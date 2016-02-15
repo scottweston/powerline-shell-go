@@ -83,6 +83,30 @@ type Configuration struct {
 			Text       int `json:"text"`
 		} `json:"battery"`
 	} `json:"colours"`
+	Weights struct {
+		Segments struct {
+			Hg         int `json:"hg"`
+			Git        int `json:"git"`
+			Cwd        int `json:"cwd"`
+			Virtualenv int `json:"virtualenv"`
+			Returncode int `json:"returncode"`
+			Lock       int `json:"lock"`
+			Battery    int `json:"battery"`
+			Hostname   int `json:"hostname"`
+		} `json:"segments"`
+		Parts struct {
+			Branch     int `json:"branch"`
+			Sync       int `json:"sync"`
+			Modified   int `json:"modified"`
+			Untracked  int `json:"untracked"`
+			Added      int `json:"added"`
+			Removed    int `json:"removed"`
+			Deleted    int `json:"deleted"`
+			Renamed    int `json:"renamed"`
+			Phases     int `json:"phases"`
+			Conflicted int `json:"conflicted"`
+		} `json:"parts"`
+	} `json:"weights"`
 }
 
 func (self *Configuration) SetDefaults() {

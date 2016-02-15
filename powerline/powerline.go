@@ -3,18 +3,45 @@ package powerline
 import (
 	"bytes"
 	"fmt"
+	"sort"
 )
 
 type Part struct {
 	Text   string
 	Weight int
 }
+type Parts []Part
+
+func (slice Parts) Len() int {
+	return len(slice)
+}
+
+func (slice Parts) Less(i, j int) bool {
+	return slice[i].Weight > slice[j].Weight
+}
+
+func (slice Parts) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
+}
 
 type Segment struct {
 	Foreground int
 	Background int
 	Weight     int
-	Parts      []Part
+	Parts      Parts
+}
+type Segments []Segment
+
+func (slice Segments) Len() int {
+	return len(slice)
+}
+
+func (slice Segments) Less(i, j int) bool {
+	return slice[i].Weight > slice[j].Weight
+}
+
+func (slice Segments) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
 }
 
 type Powerline struct {
@@ -41,7 +68,7 @@ type Powerline struct {
 	Dollar        string
 	SetTitle      string
 	Bold          string
-	Segments      []Segment
+	Segments      Segments
 }
 
 func (p *Powerline) Color(fore int, back int) string {
@@ -70,6 +97,9 @@ func (p *Powerline) PrintSegments() string {
 
 	var nextBackground string
 
+	// sort segments
+	sort.Sort(p.Segments)
+
 	for i, Seg := range p.Segments {
 
 		// What color do we need to end the segment, this last background is
@@ -79,6 +109,9 @@ func (p *Powerline) PrintSegments() string {
 		} else {
 			nextBackground = p.BackgroundColor(p.Segments[i+1].Background)
 		}
+
+		// sort parts
+		sort.Sort(Seg.Parts)
 
 		for j, Part := range Seg.Parts {
 			// are we on the last part?

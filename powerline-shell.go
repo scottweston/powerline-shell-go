@@ -108,6 +108,7 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 
 		segment.Background = branch_colour
 		segment.Foreground = text_colour
+		segment.Weight = conf.Weights.Segments.Hg
 
 		// branch name
 		if len(matchBranch) > 0 {
@@ -116,7 +117,7 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 			} else {
 				fmt_str = matchBranch[1]
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Branch})
 		}
 
 		// phases
@@ -139,7 +140,7 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 			} else {
 				fmt_str = fmt.Sprintf("%d%s", total, p.Phases)
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Phases})
 		}
 
 		// updated files
@@ -149,7 +150,7 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 			} else {
 				fmt_str = p.Behind
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Sync})
 		}
 
 		// added files
@@ -159,17 +160,17 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 			} else {
 				fmt_str = p.Added
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Added})
 		}
 
-		// modifed files
+		// modified files
 		if len(res_mod) > 0 {
 			if res_mod[1] != "1" {
 				fmt_str = fmt.Sprintf("%s%s", res_mod[1], p.Modified)
 			} else {
 				fmt_str = p.Modified
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Modified})
 		}
 
 		// untracked files
@@ -179,7 +180,7 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 			} else {
 				fmt_str = p.Untracked
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Untracked})
 		}
 
 		// removed files
@@ -189,7 +190,7 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 			} else {
 				fmt_str = p.Removed
 			}
-			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Removed})
 		}
 
 		return &segment
@@ -249,6 +250,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 
 	segment.Background = branch_colour
 	segment.Foreground = text_colour
+	segment.Weight = conf.Weights.Segments.Git
 
 	// branch name
 	if len(matchBranch) > 0 {
@@ -261,7 +263,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 			fmt_str = fmt.Sprintf("%s%s ", fmt_str, p.Branch)
 		}
 		fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Branch})
 	}
 
 	// ahead/behind
@@ -283,7 +285,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = "unk"
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Sync})
 	}
 
 	// renamed files
@@ -293,7 +295,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Renamed
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Renamed})
 	}
 
 	// added files
@@ -303,7 +305,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Added
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Added})
 	}
 
 	// modified files
@@ -313,7 +315,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Modified
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Modified})
 	}
 
 	// untracked files
@@ -323,7 +325,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Untracked
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Untracked})
 	}
 
 	// deleted files
@@ -333,7 +335,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Removed
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Deleted})
 	}
 
 	// conflicted files
@@ -343,7 +345,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Conflicted
 		}
-		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Conflicted})
 	}
 
 	return &segment
@@ -369,7 +371,7 @@ func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline)
 
 	// are we under our home?
 	if cwdParts[0] == "~" {
-		segment = append(segment, powerline.Segment{Foreground: conf.Colours.Cwd.HomeText, Background: conf.Colours.Cwd.HomeBackground})
+		segment = append(segment, powerline.Segment{Foreground: conf.Colours.Cwd.HomeText, Background: conf.Colours.Cwd.HomeBackground, Weight: conf.Weights.Segments.Cwd})
 		segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: cwdParts[0]})
 		cwdParts = cwdParts[1:]
 	}
@@ -385,7 +387,7 @@ func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline)
 		cwdParts[0] = "/" + cwdParts[0]
 	}
 
-	segment = append(segment, powerline.Segment{Foreground: fore_col, Background: back_col})
+	segment = append(segment, powerline.Segment{Foreground: fore_col, Background: back_col, Weight: conf.Weights.Segments.Cwd})
 	segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: cwdParts[0]})
 	cwdParts = cwdParts[1:]
 
@@ -402,7 +404,7 @@ func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline)
 
 func addVirtulEnvName(conf config.Configuration, virtualEnvName string) *powerline.Segment {
 	if virtualEnvName != "" {
-		segment := powerline.Segment{Foreground: conf.Colours.Virtualenv.Text, Background: conf.Colours.Virtualenv.Background}
+		segment := powerline.Segment{Foreground: conf.Colours.Virtualenv.Text, Background: conf.Colours.Virtualenv.Background, Weight: conf.Weights.Segments.Virtualenv}
 		segment.Parts = append(segment.Parts, powerline.Part{Text: virtualEnvName})
 		return &segment
 	}
@@ -411,7 +413,7 @@ func addVirtulEnvName(conf config.Configuration, virtualEnvName string) *powerli
 
 func addReturnCode(conf config.Configuration, ret_code int) *powerline.Segment {
 	if ret_code != 0 {
-		segment := powerline.Segment{Foreground: conf.Colours.Returncode.Text, Background: conf.Colours.Returncode.Background}
+		segment := powerline.Segment{Foreground: conf.Colours.Returncode.Text, Background: conf.Colours.Returncode.Background, Weight: conf.Weights.Segments.Returncode}
 		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt.Sprintf("%d", ret_code)})
 		return &segment
 	}
@@ -420,7 +422,7 @@ func addReturnCode(conf config.Configuration, ret_code int) *powerline.Segment {
 
 func addLock(conf config.Configuration, cwd string, p powerline.Powerline) *powerline.Segment {
 	if !IsWritableDir(cwd) {
-		segment := powerline.Segment{Foreground: conf.Colours.Lock.Text, Background: conf.Colours.Lock.Background}
+		segment := powerline.Segment{Foreground: conf.Colours.Lock.Text, Background: conf.Colours.Lock.Background, Weight: conf.Weights.Segments.Lock}
 		segment.Parts = append(segment.Parts, powerline.Part{Text: p.ReadOnly})
 		return &segment
 	}
@@ -452,7 +454,7 @@ func addHostname(conf config.Configuration, includeUsername bool, hostHash bool)
 		hostname = user.Username + "@" + hostname
 	}
 
-	segment := powerline.Segment{Foreground: 16, Background: back}
+	segment := powerline.Segment{Foreground: 16, Background: back, Weight: conf.Weights.Segments.Hostname}
 	segment.Parts = append(segment.Parts, powerline.Part{Text: hostname})
 	return &segment
 }
@@ -462,7 +464,7 @@ func addBatteryWarn(conf config.Configuration) *powerline.Segment {
 	if err == nil {
 		capacity, _ := strconv.Atoi(strings.Trim(string(battery), " \n"))
 		if capacity <= conf.BatteryWarn {
-			segment := powerline.Segment{Foreground: conf.Colours.Battery.Text, Background: conf.Colours.Battery.Background}
+			segment := powerline.Segment{Foreground: conf.Colours.Battery.Text, Background: conf.Colours.Battery.Background, Weight: conf.Weights.Segments.Battery}
 			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt.Sprintf("%d%%", capacity)})
 			return &segment
 		}
@@ -471,7 +473,7 @@ func addBatteryWarn(conf config.Configuration) *powerline.Segment {
 }
 
 func addDollarPrompt(conf config.Configuration, dollar string) *powerline.Segment {
-	segment := powerline.Segment{Foreground: conf.Colours.Dollar.Text, Background: conf.Colours.Dollar.Background}
+	segment := powerline.Segment{Foreground: conf.Colours.Dollar.Text, Background: conf.Colours.Dollar.Background, Weight: -1000}
 	segment.Parts = append(segment.Parts, powerline.Part{Text: dollar})
 	return &segment
 }
