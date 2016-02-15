@@ -36,6 +36,8 @@ import (
 
 var build string
 
+// Helpers
+
 func getCurrentWorkingDir() (string, []string) {
 	dir, err := filepath.Abs(".")
 	if err != nil {
@@ -57,18 +59,26 @@ func getVirtualEnv() string {
 	return virtualEnvName
 }
 
-func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{} {
+// Segment generators
+
+func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segment {
 	var fmt_str string
-	segments := [][]interface{}{}
+
+	segment := powerline.Segment{}
+
 	branch_colour := conf.Colours.Hg.BackgroundDefault
 	text_colour := conf.Colours.Hg.Text
 
 	hg, err := exec.Command("hg", "sum", "--color=never", "-y").Output()
 
 	if err == nil {
+		// branch:
 		reBranch := regexp.MustCompile(`(?m)^branch: (.*)$`)
 		matchBranch := reBranch.FindStringSubmatch(string(hg))
 
+		// commit:
+		// %d modified, %d added, %d removed, %d renamed, %d copied
+		// %d deleted, %d unknown, %d unresolved, %d subrepos
 		reModifed := regexp.MustCompile(`(?m)^commit:.* (.*) modified`)
 		res_mod := reModifed.FindStringSubmatch(string(hg))
 		reUntracked := regexp.MustCompile(`(?m)^commit:.* (.*) unknown`)
@@ -77,9 +87,14 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{}
 		res_added := reAdded.FindStringSubmatch(string(hg))
 		reRemoved := regexp.MustCompile(`(?m)^commit:.* (.*) removed`)
 		res_remove := reRemoved.FindStringSubmatch(string(hg))
-		reClean := regexp.MustCompile(`(?m)^commit:.*clean`)
+		reClean := regexp.MustCompile(`(?m)^commit:.*\(clean\)`)
 		res_clean := reClean.FindStringSubmatch(string(hg))
 
+		// update:
+		reUpdate := regexp.MustCompile(`(?m)^update: (.*) new`)
+		res_update := reUpdate.FindStringSubmatch(string(hg))
+
+		// phases:
 		rePublic := regexp.MustCompile(`(?m)^phases:.* (.*) public`)
 		res_public := rePublic.FindStringSubmatch(string(hg))
 		reDraft := regexp.MustCompile(`(?m)^phases:.* (.*) draft`)
@@ -91,6 +106,9 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{}
 			branch_colour = conf.Colours.Hg.BackgroundChanges
 		}
 
+		segment.Background = branch_colour
+		segment.Foreground = text_colour
+
 		// branch name
 		if len(matchBranch) > 0 {
 			if matchBranch[1] != "default" {
@@ -98,12 +116,9 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{}
 			} else {
 				fmt_str = matchBranch[1]
 			}
-			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 || len(res_public) > 0 || len(res_draft) > 0 || len(res_secret) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 		}
+
 		// phases
 		if len(res_public) > 0 || len(res_draft) > 0 || len(res_secret) > 0 {
 			var public int = 0
@@ -124,67 +139,70 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) [][]interface{}
 			} else {
 				fmt_str = fmt.Sprintf("%d%s", total, p.Phases)
 			}
-			if len(res_added) > 0 || len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
-
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 		}
+
+		// updated files
+		if len(res_update) > 0 {
+			if res_update[1] != "1" {
+				fmt_str = fmt.Sprintf("%s%s", res_update[1], p.Behind)
+			} else {
+				fmt_str = p.Behind
+			}
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
+		}
+
+		// added files
 		if len(res_added) > 0 {
 			if res_added[1] != "1" {
 				fmt_str = fmt.Sprintf("%s%s", res_added[1], p.Added)
 			} else {
 				fmt_str = p.Added
 			}
-			if len(res_mod) > 0 || len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 		}
+
+		// modifed files
 		if len(res_mod) > 0 {
 			if res_mod[1] != "1" {
 				fmt_str = fmt.Sprintf("%s%s", res_mod[1], p.Modified)
 			} else {
 				fmt_str = p.Modified
 			}
-			if len(res_untrk) > 0 || len(res_remove) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 		}
+
+		// untracked files
 		if len(res_untrk) > 0 {
 			if res_untrk[1] != "1" {
 				fmt_str = fmt.Sprintf("%s%s", res_untrk[1], p.Untracked)
 			} else {
 				fmt_str = p.Untracked
 			}
-			if len(res_remove) > 0 {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-			} else {
-				segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-			}
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 		}
+
+		// removed files
 		if len(res_remove) > 0 {
 			if res_remove[1] != "1" {
 				fmt_str = fmt.Sprintf("%s%s", res_remove[1], p.Removed)
 			} else {
 				fmt_str = p.Removed
 			}
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 		}
 
-		return segments
+		return &segment
 	} else {
 		return nil
 	}
 }
 
-func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerline) [][]interface{} {
+func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerline) *powerline.Segment {
 	var fmt_str string
-	segments := [][]interface{}{}
+
+	segment := powerline.Segment{}
+
 	branch_colour := conf.Colours.Git.BackgroundDefault
 	text_colour := conf.Colours.Git.Text
 
@@ -229,6 +247,9 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		branch_colour = conf.Colours.Git.BackgroundChanges
 	}
 
+	segment.Background = branch_colour
+	segment.Foreground = text_colour
+
 	// branch name
 	if len(matchBranch) > 0 {
 		if len(matchDetached) > 0 {
@@ -240,12 +261,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 			fmt_str = fmt.Sprintf("%s%s ", fmt_str, p.Branch)
 		}
 		fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
-
-		if len(matchStatus) > 0 || len(rename_res) > 0 || len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// ahead/behind
@@ -267,12 +283,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = "unk"
 		}
-
-		if len(rename_res) > 0 || len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// renamed files
@@ -282,12 +293,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Renamed
 		}
-
-		if len(add_res) > 0 || len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// added files
@@ -297,12 +303,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Added
 		}
-
-		if len(mod_res) > 0 || len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// modified files
@@ -312,12 +313,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Modified
 		}
-
-		if len(uncom_res) > 0 || len(del_res) > 0 || len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// untracked files
@@ -327,12 +323,7 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Untracked
 		}
-
-		if len(del_res) > 0 || len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// deleted files
@@ -342,36 +333,27 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 		} else {
 			fmt_str = p.Removed
 		}
-
-		if len(cfd_res) > 0 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str, p.SeparatorThin, text_colour})
-		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt_str})
-		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
 	// conflicted files
 	if len(cfd_res) > 0 {
 		if (len(cfd_res)) > 1 {
-			segments = append(segments, []interface{}{text_colour, branch_colour, fmt.Sprintf("%d%s", len(cfd_res), p.Conflicted)})
+			fmt_str = fmt.Sprintf("%d%s", len(cfd_res), p.Conflicted)
 		} else {
-			segments = append(segments, []interface{}{text_colour, branch_colour, p.Conflicted})
+			fmt_str = p.Conflicted
 		}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str})
 	}
 
-	return segments
+	return &segment
 }
 
-func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline) [][]interface{} {
-	segments := [][]interface{}{}
+func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline) []powerline.Segment {
+	segment := []powerline.Segment{}
+
 	back_col := conf.Colours.Cwd.Background
 	fore_col := conf.Colours.Cwd.Text
-
-	home := false
-	if cwdParts[0] == "~" {
-		cwdParts = cwdParts[1:]
-		home = true
-	}
 
 	// limit part length, less than 3 makes no sense
 	if conf.CwdMaxLength > 3 {
@@ -385,60 +367,67 @@ func addCwd(conf config.Configuration, cwdParts []string, p powerline.Powerline)
 		}
 	}
 
-	if home {
-		segments = append(segments, []interface{}{conf.Colours.Cwd.HomeText, conf.Colours.Cwd.HomeBackground, "~"})
-
-		if len(cwdParts) > 2 {
-			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[0], p.SeparatorThin, fore_col})
-			segments = append(segments, []interface{}{fore_col, back_col, p.Ellipsis, p.SeparatorThin, fore_col})
-		} else if len(cwdParts) == 2 {
-			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[0], p.SeparatorThin, fore_col})
-		}
-	} else {
-		if len(cwdParts[len(cwdParts)-1]) == 0 {
-			segments = append(segments, []interface{}{fore_col, back_col, "/"})
-		}
-
-		if len(cwdParts) > 3 {
-			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[1], p.SeparatorThin, fore_col})
-			segments = append(segments, []interface{}{fore_col, back_col, p.Ellipsis, p.SeparatorThin, fore_col})
-		} else if len(cwdParts) > 2 {
-			segments = append(segments, []interface{}{fore_col, back_col, cwdParts[1], p.SeparatorThin, fore_col})
-		}
+	// are we under our home?
+	if cwdParts[0] == "~" {
+		segment = append(segment, powerline.Segment{Foreground: conf.Colours.Cwd.HomeText, Background: conf.Colours.Cwd.HomeBackground})
+		segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: cwdParts[0]})
+		cwdParts = cwdParts[1:]
 	}
 
-	if len(cwdParts) != 0 && len(cwdParts[len(cwdParts)-1]) > 0 {
-		segments = append(segments, []interface{}{fore_col, back_col, cwdParts[len(cwdParts)-1]})
+	if len(cwdParts) == 0 {
+		return segment
 	}
 
-	return segments
+	if cwdParts[0] == "" {
+		if len(cwdParts) > 1 {
+			cwdParts = cwdParts[1:]
+		}
+		cwdParts[0] = "/" + cwdParts[0]
+	}
+
+	segment = append(segment, powerline.Segment{Foreground: fore_col, Background: back_col})
+	segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: cwdParts[0]})
+	cwdParts = cwdParts[1:]
+
+	// if there's only one more we show it, otherwise it's an ellipsis then the last part
+	if len(cwdParts) == 1 {
+		segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: cwdParts[0]})
+	} else if len(cwdParts) > 1 {
+		segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: p.Ellipsis})
+		segment[len(segment)-1].Parts = append(segment[len(segment)-1].Parts, powerline.Part{Text: cwdParts[len(cwdParts)-1]})
+	}
+
+	return segment
 }
 
-func addVirtulEnvName(conf config.Configuration, virtualEnvName string) []interface{} {
+func addVirtulEnvName(conf config.Configuration, virtualEnvName string) *powerline.Segment {
 	if virtualEnvName != "" {
-		return []interface{}{conf.Colours.Virtualenv.Text, conf.Colours.Virtualenv.Background, virtualEnvName}
+		segment := powerline.Segment{Foreground: conf.Colours.Virtualenv.Text, Background: conf.Colours.Virtualenv.Background}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: virtualEnvName})
+		return &segment
 	}
-
 	return nil
 }
 
-func addReturnCode(conf config.Configuration, ret_code int) []interface{} {
+func addReturnCode(conf config.Configuration, ret_code int) *powerline.Segment {
 	if ret_code != 0 {
-		return []interface{}{conf.Colours.Returncode.Text, conf.Colours.Returncode.Background, fmt.Sprintf("%d", ret_code)}
+		segment := powerline.Segment{Foreground: conf.Colours.Returncode.Text, Background: conf.Colours.Returncode.Background}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt.Sprintf("%d", ret_code)})
+		return &segment
 	}
-
 	return nil
 }
 
-func addLock(conf config.Configuration, cwd string, p powerline.Powerline) []interface{} {
+func addLock(conf config.Configuration, cwd string, p powerline.Powerline) *powerline.Segment {
 	if !IsWritableDir(cwd) {
-		return []interface{}{conf.Colours.Lock.Text, conf.Colours.Lock.Background, p.ReadOnly}
+		segment := powerline.Segment{Foreground: conf.Colours.Lock.Text, Background: conf.Colours.Lock.Background}
+		segment.Parts = append(segment.Parts, powerline.Part{Text: p.ReadOnly})
+		return &segment
 	}
-
 	return nil
 }
 
-func addHostname(conf config.Configuration, includeUsername bool, hostHash bool) []interface{} {
+func addHostname(conf config.Configuration, includeUsername bool, hostHash bool) *powerline.Segment {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil
@@ -463,22 +452,28 @@ func addHostname(conf config.Configuration, includeUsername bool, hostHash bool)
 		hostname = user.Username + "@" + hostname
 	}
 
-	return []interface{}{16, back, hostname}
+	segment := powerline.Segment{Foreground: 16, Background: back}
+	segment.Parts = append(segment.Parts, powerline.Part{Text: hostname})
+	return &segment
 }
 
-func addBatteryWarn(conf config.Configuration) []interface{} {
+func addBatteryWarn(conf config.Configuration) *powerline.Segment {
 	battery, err := ioutil.ReadFile("/sys/class/power_supply/BAT0/capacity")
 	if err == nil {
 		capacity, _ := strconv.Atoi(strings.Trim(string(battery), " \n"))
 		if capacity <= conf.BatteryWarn {
-			return []interface{}{conf.Colours.Battery.Text, conf.Colours.Battery.Background, fmt.Sprintf("%d%%", capacity)}
+			segment := powerline.Segment{Foreground: conf.Colours.Battery.Text, Background: conf.Colours.Battery.Background}
+			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt.Sprintf("%d%%", capacity)})
+			return &segment
 		}
 	}
 	return nil
 }
 
-func addDollarPrompt(conf config.Configuration, dollar string) []interface{} {
-	return []interface{}{conf.Colours.Dollar.Text, conf.Colours.Dollar.Background, dollar}
+func addDollarPrompt(conf config.Configuration, dollar string) *powerline.Segment {
+	segment := powerline.Segment{Foreground: conf.Colours.Dollar.Text, Background: conf.Colours.Dollar.Background}
+	segment.Parts = append(segment.Parts, powerline.Part{Text: dollar})
+	return &segment
 }
 
 func main() {
@@ -636,7 +631,10 @@ func main() {
 		p.AppendSegment(addHostname(configuration, true, true))
 	}
 	if configuration.ShowCwd {
-		p.AppendSegments(addCwd(configuration, cwdParts, p))
+		parts := addCwd(configuration, cwdParts, p)
+		for _, element := range parts {
+			p.AppendSegment(&element)
+		}
 	}
 	if configuration.ShowWritable {
 		p.AppendSegment(addLock(configuration, cwd, p))
@@ -644,11 +642,11 @@ func main() {
 	if configuration.ShowGit {
 		porcelain, err := exec.Command("git", "status", "--ignore-submodules", "-b", "--porcelain").Output()
 		if err == nil {
-			p.AppendSegments(addGitInfo(configuration, string(porcelain), p))
+			p.AppendSegment(addGitInfo(configuration, string(porcelain), p))
 		}
 	}
 	if configuration.ShowHg {
-		p.AppendSegments(addHgInfo(configuration, p))
+		p.AppendSegment(addHgInfo(configuration, p))
 	}
 	if configuration.ShowReturnCode {
 		p.AppendSegment(addReturnCode(configuration, last_retcode))

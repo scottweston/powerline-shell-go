@@ -5,6 +5,18 @@ import (
 	"fmt"
 )
 
+type Part struct {
+	Text   string
+	Weight int
+}
+
+type Segment struct {
+	Foreground int
+	Background int
+	Weight     int
+	Parts      []Part
+}
+
 type Powerline struct {
 	ShTemplate    string
 	BashTemplate  string
@@ -29,7 +41,7 @@ type Powerline struct {
 	Dollar        string
 	SetTitle      string
 	Bold          string
-	Segments      [][]interface{}
+	Segments      []Segment
 }
 
 func (p *Powerline) Color(fore int, back int) string {
@@ -47,31 +59,41 @@ func (p *Powerline) BackgroundColor(back int) string {
 	return p.Color(48, back)
 }
 
-func (p *Powerline) AppendSegment(segment []interface{}) {
+func (p *Powerline) AppendSegment(segment *Segment) {
 	if segment != nil {
-		p.Segments = append(p.Segments, segment)
-	}
-}
-
-func (p *Powerline) AppendSegments(segments [][]interface{}) {
-	for _, segment := range segments {
-		p.AppendSegment(segment)
+		p.Segments = append(p.Segments, *segment)
 	}
 }
 
 func (p *Powerline) PrintSegments() string {
-	var nextBackground string
 	var buffer bytes.Buffer
-	for i, Segment := range p.Segments {
+
+	var nextBackground string
+
+	for i, Seg := range p.Segments {
+
+		// What color do we need to end the segment, this last background is
+		// the next segments background
 		if (i + 1) == len(p.Segments) {
 			nextBackground = p.Reset
 		} else {
-			nextBackground = p.BackgroundColor(p.Segments[i+1][1].(int))
+			nextBackground = p.BackgroundColor(p.Segments[i+1].Background)
 		}
-		if len(Segment) == 3 {
-			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0].(int)), p.BackgroundColor(Segment[1].(int)), Segment[2].(string), nextBackground, p.ForegroundColor(Segment[1].(int)), p.Separator))
-		} else {
-			buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s", p.ForegroundColor(Segment[0].(int)), p.BackgroundColor(Segment[1].(int)), Segment[2], nextBackground, p.ForegroundColor(Segment[4].(int)), Segment[3]))
+
+		for j, Part := range Seg.Parts {
+			// are we on the last part?
+			if (j + 1) == len(Seg.Parts) {
+				buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s",
+					p.ForegroundColor(Seg.Foreground), p.BackgroundColor(Seg.Background),
+					Part.Text,
+					nextBackground, p.ForegroundColor(Seg.Background),
+					p.Separator))
+			} else {
+				buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s",
+					p.ForegroundColor(Seg.Foreground), p.BackgroundColor(Seg.Background),
+					Part.Text,
+					p.BackgroundColor(Seg.Background), p.ForegroundColor(Seg.Foreground), p.SeparatorThin))
+			}
 		}
 	}
 
