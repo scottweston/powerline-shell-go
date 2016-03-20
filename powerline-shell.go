@@ -429,10 +429,17 @@ func addLock(conf config.Configuration, cwd string, p powerline.Powerline) *powe
 	return nil
 }
 
-func addHostname(conf config.Configuration, includeUsername bool, hostHash bool) *powerline.Segment {
+func addHostname(conf config.Configuration, includeUsername bool, hostHash bool, p powerline.Powerline) *powerline.Segment {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil
+	}
+
+	if len(hostname) > conf.HostnameMaxLength {
+		sml := int(conf.HostnameMaxLength/2 - 1)
+		if sml > 0 {
+			hostname = hostname[0:sml] + p.Ellipsis + hostname[len(hostname)-sml:]
+		}
 	}
 
 	back := 12
@@ -451,7 +458,11 @@ func addHostname(conf config.Configuration, includeUsername bool, hostHash bool)
 		if err != nil {
 			return nil
 		}
-		hostname = user.Username + "@" + hostname
+		if conf.HostnameMaxLength > 0 {
+			hostname = user.Username + "@" + hostname
+		} else {
+			hostname = user.Username
+		}
 	}
 
 	segment := powerline.Segment{Foreground: 16, Background: back, Weight: conf.Weights.Segments.Hostname}
@@ -514,7 +525,22 @@ func main() {
 	}
 
 	if len(os.Args) > 2 {
-		last_retcode, _ = strconv.Atoi(os.Args[2])
+		last_retcode, err = strconv.Atoi(os.Args[2])
+		if err != nil {
+			if os.Args[2] == "install" {
+				if shell == "bash" {
+					fmt.Println(`function _update_ps1() { export PS1="$(powerline-shell-go bash $? 2> /dev/null)"; };
+export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND";`)
+				} else if shell == "zsh" {
+					fmt.Println(`function powerline_precmd() { export PS1="$(powerline-shell-go zsh $? 2> /dev/null)"; };
+function install_powerline_precmd() { for s in "${precmd_functions[@]}"; do; if [ "$s" = "powerline_precmd" ]; then; return; fi; done; precmd_functions+=(powerline_precmd); };
+install_powerline_precmd;`)
+				} else {
+					fmt.Printf("echo Unsupported shell: %s;\n", shell)
+				}
+				os.Exit(0)
+			}
+		}
 	}
 
 	if shell != "bash" && shell != "zsh" {
@@ -630,7 +656,7 @@ func main() {
 		p.AppendSegment(addVirtulEnvName(configuration, getVirtualEnv()))
 	}
 	if _, found := syscall.Getenv("SSH_CLIENT"); found {
-		p.AppendSegment(addHostname(configuration, true, true))
+		p.AppendSegment(addHostname(configuration, true, true, p))
 	}
 	if configuration.ShowCwd {
 		parts := addCwd(configuration, cwdParts, p)

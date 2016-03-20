@@ -17,3 +17,6 @@ windows:
 clean:
 	go clean
 	rm -rf build
+
+install:
+	go install $(options)

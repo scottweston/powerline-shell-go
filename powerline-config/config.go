@@ -1,15 +1,16 @@
 package config
 
 type Configuration struct {
-	ShowWritable   bool `json:"showWritable"`
-	ShowVirtualEnv bool `json:"showVirtualEnv"`
-	ShowCwd        bool `json:"showCwd"`
-	CwdMaxLength   int  `json:"cwdMaxLength"`
-	BatteryWarn    int  `json:"batteryWarn"`
-	ShowGit        bool `json:"showGit"`
-	ShowHg         bool `json:"showHg"`
-	ShowReturnCode bool `json:"showReturnCode"`
-	Icons          struct {
+	ShowWritable      bool `json:"showWritable"`
+	ShowVirtualEnv    bool `json:"showVirtualEnv"`
+	ShowCwd           bool `json:"showCwd"`
+	CwdMaxLength      int  `json:"cwdMaxLength"`
+	HostnameMaxLength int  `json:"hostnameMaxLength"`
+	BatteryWarn       int  `json:"batteryWarn"`
+	ShowGit           bool `json:"showGit"`
+	ShowHg            bool `json:"showHg"`
+	ShowReturnCode    bool `json:"showReturnCode"`
+	Icons             struct {
 		Powerline struct {
 			Added         string `json:"added"`
 			Ahead         string `json:"ahead"`
@@ -114,6 +115,7 @@ func (self *Configuration) SetDefaults() {
 	self.ShowVirtualEnv = true
 	self.ShowCwd = true
 	self.CwdMaxLength = 0
+	self.HostnameMaxLength = 12
 	self.BatteryWarn = 0
 	self.ShowGit = true
 	self.ShowHg = true
