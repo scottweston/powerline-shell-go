@@ -5,6 +5,7 @@ type Configuration struct {
 	ShowVirtualEnv    bool `json:"showVirtualEnv"`
 	ShowCwd           bool `json:"showCwd"`
 	CwdMaxLength      int  `json:"cwdMaxLength"`
+	BranchMaxLength   int  `json:"branchMaxLength"`
 	HostnameMaxLength int  `json:"hostnameMaxLength"`
 	BatteryWarn       int  `json:"batteryWarn"`
 	ShowGit           bool `json:"showGit"`
@@ -114,7 +115,8 @@ func (self *Configuration) SetDefaults() {
 	self.ShowWritable = true
 	self.ShowVirtualEnv = true
 	self.ShowCwd = true
-	self.CwdMaxLength = 0
+	self.CwdMaxLength = 12
+	self.BranchMaxLength = 12
 	self.HostnameMaxLength = 12
 	self.BatteryWarn = 0
 	self.ShowGit = true

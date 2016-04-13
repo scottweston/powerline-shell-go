@@ -16,7 +16,9 @@ func Test_addHostname_with_username(t *testing.T) {
 	hostname, _ := os.Hostname()
 	user, _ := user.Current()
 
-	rootSegment := addHostname(conf, true, false)
+	p := powerline.NewPowerline("bash", false)
+
+	rootSegment := addHostname(conf, true, false, p)
 	var parts []powerline.Part
 	parts = append(parts, powerline.Part{Text: user.Username + "@" + hostname})
 	want := powerline.Segment{Foreground: 16, Background: 12,

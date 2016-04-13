@@ -112,10 +112,20 @@ func addHgInfo(conf config.Configuration, p powerline.Powerline) *powerline.Segm
 
 		// branch name
 		if len(matchBranch) > 0 {
-			if matchBranch[1] != "default" {
-				fmt_str = p.Branch + " " + matchBranch[1]
+			branch := matchBranch[1]
+			branch_fmt := branch
+			if conf.BranchMaxLength > 3 {
+				if len(branch) > conf.BranchMaxLength {
+					sml := int(conf.BranchMaxLength/2 - 1)
+					if sml > 0 {
+						branch_fmt = branch[0:sml] + p.Ellipsis + branch[len(branch)-sml:]
+					}
+				}
+			}
+			if branch != "default" {
+				fmt_str = p.Branch + " " + branch_fmt
 			} else {
-				fmt_str = matchBranch[1]
+				fmt_str = branch_fmt
 			}
 			segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Branch})
 		}
@@ -254,15 +264,26 @@ func addGitInfo(conf config.Configuration, porcelain string, p powerline.Powerli
 
 	// branch name
 	if len(matchBranch) > 0 {
+		branch := matchBranch[2]
+		branch_fmt := branch
+		if conf.BranchMaxLength > 3 {
+			if len(branch) > conf.BranchMaxLength {
+				sml := int(conf.BranchMaxLength/2 - 1)
+				if sml > 0 {
+					branch_fmt = branch[0:sml] + p.Ellipsis + branch[len(branch)-sml:]
+				}
+			}
+		}
+
 		if len(matchDetached) > 0 {
 			fmt_str = p.Detached + " "
 		} else {
 			fmt_str = ""
 		}
-		if matchBranch[2] != "master" {
+		if branch != "master" {
 			fmt_str = fmt.Sprintf("%s%s ", fmt_str, p.Branch)
 		}
-		fmt_str = fmt.Sprintf("%s%s", fmt_str, matchBranch[2])
+		fmt_str = fmt.Sprintf("%s%s", fmt_str, branch_fmt)
 		segment.Parts = append(segment.Parts, powerline.Part{Text: fmt_str, Weight: conf.Weights.Parts.Branch})
 	}
 
