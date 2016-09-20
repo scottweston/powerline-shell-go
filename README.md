@@ -73,6 +73,7 @@ override as many or as few options as you like:
   "showVirtualEnv": true,
   "showCwd": true,
   "cwdMaxLength": 10,
+  "branchMaxLength": 12,
   "batteryWarn": 20,
   "showGit": true,
   "showHg": true,
