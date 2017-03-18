@@ -3,12 +3,14 @@ package powerline
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"sort"
 )
 
 type Part struct {
 	Text   string
 	Weight int
+	Dirty  bool
 }
 type Parts []Part
 
@@ -94,8 +96,8 @@ func (p *Powerline) AppendSegment(segment *Segment) {
 
 func (p *Powerline) PrintSegments() string {
 	var buffer bytes.Buffer
-
 	var nextBackground string
+	var text string
 
 	// sort segments
 	sort.Sort(p.Segments)
@@ -113,18 +115,24 @@ func (p *Powerline) PrintSegments() string {
 		// sort parts
 		sort.Sort(Seg.Parts)
 
+		re := regexp.MustCompile("([$&\\\\`!])")
 		for j, Part := range Seg.Parts {
+			// escape dodgy shell injection characters
+			text = Part.Text
+			if Part.Dirty {
+				text = re.ReplaceAllString(Part.Text, "\\$1")
+			}
 			// are we on the last part?
 			if (j + 1) == len(Seg.Parts) {
 				buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s",
 					p.ForegroundColor(Seg.Foreground), p.BackgroundColor(Seg.Background),
-					Part.Text,
+					text,
 					nextBackground, p.ForegroundColor(Seg.Background),
 					p.Separator))
 			} else {
 				buffer.WriteString(fmt.Sprintf("%s%s %s %s%s%s",
 					p.ForegroundColor(Seg.Foreground), p.BackgroundColor(Seg.Background),
-					Part.Text,
+					text,
 					p.BackgroundColor(Seg.Background), p.ForegroundColor(Seg.Foreground), p.SeparatorThin))
 			}
 		}
@@ -181,3 +189,5 @@ func NewPowerline(shell string, fancy bool) Powerline {
 	}
 	return p
 }
+
+// vim: ts=8 sw=8 noexpandtab:
